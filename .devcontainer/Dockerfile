@@ -26,7 +26,7 @@ ARG CONTAINER_USER=developer
 ARG WORKSPACE_FOLDER=/workspace
 RUN useradd -s /bin/bash -m ${CONTAINER_USER} && \
   echo "\nexport PROMPT_COMMAND=\"history -a; history -n\n\"" >> /home/${CONTAINER_USER}/.bashrc && \
-  mkdir ${WORKSPACE_FOLDER} && \
-  chown ${CONTAINER_USER}:${CONTAINER_USER} ${WORKSPACE_FOLDER}
+  mkdir -p ${WORKSPACE_FOLDER} && \
+  chown -R ${CONTAINER_USER}:${CONTAINER_USER} ${WORKSPACE_FOLDER}
 
 USER ${CONTAINER_USER}
