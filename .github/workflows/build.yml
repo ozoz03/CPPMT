@@ -7,10 +7,13 @@
 name: Build
 
 # Тригери:
-# - push: запускаємо на кожен push у будь-яку гілку.
+# - push.branches: [main] - запускаємо тільки при push у main (тобто
+#   при merge PR). Обмеження важливе: без нього push + pull_request
+#   запускали б одну й ту саму збірку двічі на кожен update PR.
 # - pull_request: запускаємо при відкритті PR і кожному update гілки.
 on:
   push:
+    branches: [main]
   pull_request:
 
 jobs:
