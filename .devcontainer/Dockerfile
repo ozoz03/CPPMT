@@ -65,23 +65,32 @@ RUN echo "ALL ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 ARG CONTAINER_USER=developer
 ARG WORKSPACE_FOLDER=/workspace
 
-# Ubuntu noble постачається з дефолтним користувачем ubuntu на UID 1000.
-# Видаляємо його, щоб звільнити UID 1000 для CONTAINER_USER.
+# Noble base постачається з дефолтним ubuntu на UID 1000. Видаляємо
+# його до створення CONTAINER_USER, інакше remap UID ламається на WSL
+# та будь-якому хості, де host user має UID 1000.
 #
-# Чому саме UID 1000: на більшості Linux-машин перший користувач отримує
-# UID 1000. Збіг UID у контейнера і на хості дає правильний ownership
-# bind-mounted workspace-а. Без цього файли створені в контейнері
-# виглядають з хоста як nobody і навпаки.
+# Чому: VS Code і devcontainers/ci на старті контейнера підлаштовують
+# UID нашого користувача під host через механізм updateRemoteUserUID.
+# Він відмовляється перепризначати UID, якщо цільовий уже зайнятий
+# кимось у /etc/passwd - просто друкує "User with UID exists" і
+# пропускає remap. На WSL (host UID = 1000) цільовий remap-а це 1000,
+# і коли ubuntu@1000 на місці, remap скіпається, наш CONTAINER_USER
+# лишається з UID 1001, а ownership bind-mount не збігається з host -
+# файли створені в контейнері з хоста виглядають як чужі.
 #
-# `2>/dev/null || true` щоб build не впав, якщо ubuntu вже нема (інший
-# base image або майбутній noble може прийти без дефолтного user-а).
+# Звільнивши слот 1000, дозволяємо useradd без -u взяти його. Далі
+# remap або робить no-op (host UID = 1000), або переносить наш UID
+# на інший вільний слот (host UID != 1000).
+#
+# `if id ubuntu` - щоб майбутній noble без дефолтного ubuntu не ламав build.
 #
 # PROMPT_COMMAND з history -a; history -n скидає історію bash у файл
 # після кожної команди. У devcontainer.json цей файл змонтований з
 # хоста - тому історія переживає перезапуск контейнера.
-RUN userdel -r ubuntu 2>/dev/null || true && \
-    groupdel ubuntu 2>/dev/null || true && \
-    useradd -s /bin/bash -m -u 1000 -U ${CONTAINER_USER} && \
+RUN if id ubuntu >/dev/null 2>&1; then \
+      userdel -r ubuntu && groupdel ubuntu 2>/dev/null || true; \
+    fi && \
+    useradd -s /bin/bash -m ${CONTAINER_USER} && \
   echo "\nexport PROMPT_COMMAND=\"history -a; history -n\n\"" >> /home/${CONTAINER_USER}/.bashrc
 
 # Всі подальші команди у контейнері (включно з процесами VS Code remote
