@@ -12,7 +12,7 @@
   "workspaceFolder": "${localEnv:HOME}/${localWorkspaceFolderBasename}",
   "mounts": [
     "source=${localEnv:HOME}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly,consistency=cached",
-    "source=${localEnv:HOME}/.devcontainers/${localWorkspaceFolderBasename}/.bash_history,target=/home/${localEnv:USER}/.bash_history,type=bind,consistency=delegated",
+    "source=${localEnv:HOME}/.devcontainers/${localWorkspaceFolderBasename}/.bash_history,target=/home/${localEnv:USER}/.bash_history,type=bind,consistency=delegated"
   ],
   "initializeCommand": [
     ".devcontainer/scripts/initialize"
@@ -53,14 +53,14 @@
         "cmakeFormat.args": [
           "--config-file=/.cmake-format.json"
         ],
-        "cmakeFormat.exePath": "/usr/bin/cmake-format"
-      }
-    },
-    "terminal.integrated.shell.linux": "bash",
-    "terminal.integrated.profiles.linux": {
-      "bash (container default)": {
-        "path": "/bin/bash",
-        "overrideName": true
+        "cmakeFormat.exePath": "/usr/bin/cmake-format",
+        "terminal.integrated.defaultProfile.linux": "bash (container default)",
+        "terminal.integrated.profiles.linux": {
+          "bash (container default)": {
+            "path": "/bin/bash",
+            "overrideName": true
+          }
+        }
       }
     }
   }
