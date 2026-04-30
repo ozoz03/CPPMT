@@ -6,11 +6,19 @@
 #include <cmath>
 #define _USE_MATH_DEFINES
 
+#define ENABLE_DEBUG  0
+
 #define LOG(msg) std::cout << "[LOG] " << msg << std::endl
 
-const int TICKS_PER_REVOLUTION = 1024; //iмпульсiв на один оберт колеса
-const double WHEEL_RADIUS_M = 0.3; //радiус колеса у метрах (дiаметр 60 см)
-const double WHEELBASE_M = 1.0; //вiдстань мiж лiвим i правим бортом, у метрах
+#if ENABLE_DEBUG
+  #define DEBUG(msg) std::cout << "[DEBUG] " << msg << std::endl
+#else
+  #define DEBUG(msg)
+#endif
+
+const int TICKS_PER_REVOLUTION = 1024; 
+const double WHEEL_RADIUS_M = 0.3; 
+const double WHEELBASE_M = 1.0; 
 
 struct Position {
     double x;
@@ -73,68 +81,34 @@ int main(int argc, char** argv) {
 
     std::vector <OdometryTick> odometry_data = readOdometryData(argv[1]);
     OdometryTick* deltaByWheel = new OdometryTick[odometry_data.size() - 1];
-    double* d_left = new double[odometry_data.size() - 1];
-    double* d_right = new double[odometry_data.size() - 1];
-    double* distance_per_tick = new double[odometry_data.size() - 1];
-    double* dL = new double[odometry_data.size() - 1];
-    double* dR = new double[odometry_data.size() - 1];
-    double* d = new double[odometry_data.size() - 1];
-    double* dtheta = new double[odometry_data.size() - 1];
+    double d_left , d_right, distance_per_tick, dL, dR, d, dtheta;
 
-    Position position = {0.0, 0.0, 0.0}; // Початкове положення (x, y, theta)
+    Position position = {0.0, 0.0, 0.0}; 
 
     for (std::size_t i = 0; i < odometry_data.size(); ++i) {
-        std::cout << odometry_data[i].timestamp_ms << " " << odometry_data[i].ticks.fl_ticks << " " << odometry_data[i].ticks.fr_ticks << " " << odometry_data[i].ticks.bl_ticks << " " << odometry_data[i].ticks.br_ticks << std::endl;
+        DEBUG(odometry_data[i].timestamp_ms << " " << odometry_data[i].ticks.fl_ticks << " " << odometry_data[i].ticks.fr_ticks << " " << odometry_data[i].ticks.bl_ticks << " " << odometry_data[i].ticks.br_ticks);
         if(i == 0) {
             LOG("First line read successfully, starting odometry calculations...");
             continue;
         }
         deltaByWheel[i] = calculateWheelDeltas(odometry_data[i], odometry_data[i - 1]); 
-        d_left[i] = (deltaByWheel[i].ticks.fl_ticks + deltaByWheel[i].ticks.bl_ticks) / 2.0;
-        d_right[i] = (deltaByWheel[i].ticks.fr_ticks + deltaByWheel[i].ticks.br_ticks) / 2.0;
+        d_left = (deltaByWheel[i].ticks.fl_ticks + deltaByWheel[i].ticks.bl_ticks) / 2.0;
+        d_right = (deltaByWheel[i].ticks.fr_ticks + deltaByWheel[i].ticks.br_ticks) / 2.0;
 
-        distance_per_tick[i] = (2 * M_PI * WHEEL_RADIUS_M) / TICKS_PER_REVOLUTION;
-        dL[i] = d_left[i]  * distance_per_tick[i];
-        dR[i] = d_right[i] * distance_per_tick[i];
-        d[i]= (dL[i] + dR[i]) / 2.0;
-        dtheta[i] = (dR[i] - dL[i]) / WHEELBASE_M;
+        distance_per_tick = (2 * M_PI * WHEEL_RADIUS_M) / TICKS_PER_REVOLUTION;
+        dL = d_left  * distance_per_tick;
+        dR = d_right * distance_per_tick;
+        d= (dL + dR) / 2.0;
+        dtheta = (dR - dL) / WHEELBASE_M;
         
-        position.x += d[i] * cos(position.theta + dtheta[i] / 2);
-        position.y += d[i] * sin(position.theta + dtheta[i] / 2);
-        position.theta += dtheta[i];
-        std::cout << "Position at " << deltaByWheel[i].timestamp_ms << ": x=" << position.x << " y=" << position.y << " theta=" << position.theta << std::endl;
+        position.x += d * cos(position.theta + dtheta / 2);
+        position.y += d * sin(position.theta + dtheta / 2);
+        position.theta += dtheta;
+        std::cout << deltaByWheel[i].timestamp_ms << " " << position.x << " " << position.y << " " << position.theta << std::endl;
     }
 
     delete[] deltaByWheel;
     deltaByWheel = nullptr;
-    delete[] d_left;
-    d_left = nullptr;
-    delete[] d_right;
-    d_right = nullptr;
-    delete[] distance_per_tick;
-    distance_per_tick = nullptr;
-    delete[] dL;
-    dL = nullptr;
-    delete[] dR;
-    dR = nullptr;
-    delete[] d;
-    d = nullptr;
-    delete[] dtheta;
-    dtheta = nullptr;
-
-    // TODO: implement wheel odometry for a 4-wheel differential-drive UGV.
-    //
-    // Parameters:
-    //   ticks_per_revolution = 1024
-    //   wheel_radius_m       = 0.3
-    //   wheelbase_m          = 1.0
-    //
-    // Input:  text file with 5 whitespace-separated numbers per line:
-    //         timestamp_ms fl_ticks fr_ticks bl_ticks br_ticks
-    // Output: same tabular format on stdout, starting from the second sample:
-    //         timestamp_ms x y theta
-
-
 
     return 0;
 }
