@@ -7,6 +7,17 @@
 
 ### Added
 
+- Block 2 / Lesson 2.4: `debug` CMake preset, VS Code launch config для
+  `homework_04` і build task, який використовує Debug-збірку через preset.
+- Block 2 / Lessons 2.4-2.5: стартовий код `homework_05` для діагностики
+  телеметрії з C++ бібліотекою, виконуваним файлом, проблемними вхідними
+  файлами і навмисними помилками під час виконання.
+  `CMakeLists.txt` для `homework_05` не додано навмисно, це частина ДЗ 5.
+- Block 2 / Lesson 2.4: demo `demos/lesson_2_4/remote_debug` для локального
+  консольного GDB, core dump, Valgrind і віддаленого GDB/gdbserver на
+  Raspberry Pi / ARM64-пристрої.
+- Block 2 / Lesson 2.4: ARM64 cross-compilation preset `aarch64-debug` і
+  CMake toolchain `cmake/toolchains/aarch64-linux-gnu.cmake`.
 - Block 2 / Lessons 2.3-2.4: VS Code tasks для CMake configure/build і
   видалення локальної `build/` директорії. `CMake: configure and build`
   зроблено default build task для `Ctrl+Shift+B`.
@@ -22,6 +33,12 @@
   додано пояснювальні коментарі до student-facing tooling/config файлів і
   зменшено `.gitignore` до мінімального C++/CMake набору.
   ([#9](https://github.com/robot-dreams-code/C-PLUS-PLUS-FOR-MILITARY-TECHNOLOGY/pull/9))
+- Block 2 / Lesson 2.4: clangd тепер читає compile database з
+  `build/debug/compile_commands.json`, щоб відповідати `debug` preset.
+- Block 2 / Lesson 2.4: README/preps і CI build flow переведено на
+  `cmake --preset debug` і `cmake --build --preset debug`.
+- Block 2 / Lesson 2.4: CI build flow додатково перевіряє
+  `aarch64-debug` cross-build.
 
 ## 2026-04-25
 
