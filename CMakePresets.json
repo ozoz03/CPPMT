@@ -20,6 +20,7 @@
       "name": "relwithdebinfo-base",
       "displayName": "Release with Debug Info",
       "description": "Optimized build with debug symbols",
+      "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
