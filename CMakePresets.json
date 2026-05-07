@@ -17,6 +17,15 @@
       }
     },
     {
+      "name": "relwithdebinfo-base",
+      "displayName": "Release with Debug Info",
+      "description": "Optimized build with debug symbols",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
       "name": "aarch64-debug",
       "displayName": "ARM64 Debug",
       "description": "Cross-compile debug build для Raspberry Pi / Radxa / Jetson через aarch64-linux-gnu toolchain.",
