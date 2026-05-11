@@ -74,6 +74,7 @@ OdometryTick calculateWheelDeltas(const OdometryTick& current, const OdometryTic
 }
 
 int main(int argc, char** argv) {
+    // The program expects exactly one argument: a path to telemetry samples.
     if (argc != 2) {
         std::cerr << "usage: ugv_odometry <input_path>\n";
         return 1;
