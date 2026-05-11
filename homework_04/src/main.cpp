@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     for (std::size_t i = 0; i < odometry_data.size(); ++i) {
         DEBUG(odometry_data[i].timestamp_ms << " " << odometry_data[i].ticks.fl_ticks << " " << odometry_data[i].ticks.fr_ticks << " " << odometry_data[i].ticks.bl_ticks << " " << odometry_data[i].ticks.br_ticks);
         if(i == 0) {
-            LOG("First line read successfully, starting odometry calculations...");
+            // LOG("First line read successfully, starting odometry calculations...");
             continue;
         }
         deltaByWheel[i] = calculateWheelDeltas(odometry_data[i], odometry_data[i - 1]); 
