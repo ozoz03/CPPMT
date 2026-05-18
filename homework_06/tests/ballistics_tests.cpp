@@ -7,13 +7,13 @@
 TEST (readBallisticFileTest, HandlesCorrectFile) {
     BallisticParams params = readBallisticFile("../data/sample_vog17.txt");
     EXPECT_FLOAT_EQ(params.xd, 100.0);
-    EXPECT_FLOAT_EQ(params.yd, 50.0);
-    EXPECT_FLOAT_EQ(params.zd, 20.0);
-    EXPECT_FLOAT_EQ(params.targetX, 150.0);
-    EXPECT_FLOAT_EQ(params.targetY, 75.0);
-    EXPECT_FLOAT_EQ(params.attackSpeed, 300.0);
+    EXPECT_FLOAT_EQ(params.yd, 100.0);
+    EXPECT_FLOAT_EQ(params.zd, 100.0);
+    EXPECT_FLOAT_EQ(params.targetX, 200.0);
+    EXPECT_FLOAT_EQ(params.targetY, 200.0);
+    EXPECT_FLOAT_EQ(params.attackSpeed, 10.0);
     EXPECT_FLOAT_EQ(params.accelerationPath, 10.0);
-    EXPECT_EQ(params.ammo_name, "RKG-3");
+    EXPECT_STREQ(params.ammo_name, "VOG-17");
 }
 
 
