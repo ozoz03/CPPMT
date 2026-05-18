@@ -1,10 +1,9 @@
 #include <gtest/gtest.h>
+
 #include "../include/ballistics.hpp"
 #include "../src/ballistics.cpp"
 
-
-
-TEST (readBallisticFileTest, HandlesCorrectFile) {
+TEST(readBallisticFileTest, HandlesCorrectFile) {
     BallisticParams params = readBallisticFile("../data/sample_vog17.txt");
     EXPECT_FLOAT_EQ(params.xd, 100.0);
     EXPECT_FLOAT_EQ(params.yd, 100.0);
@@ -16,6 +15,13 @@ TEST (readBallisticFileTest, HandlesCorrectFile) {
     EXPECT_STREQ(params.ammo_name, "VOG-17");
 }
 
+TEST(getAmmoParamsTest, HandlesKnownAmmo) {
+    AmmoParams ammo = getAmmoParams("VOG-17");
+    EXPECT_FLOAT_EQ(ammo.mass, 0.35);
+    EXPECT_FLOAT_EQ(ammo.drag, 0.07);
+    EXPECT_FLOAT_EQ(ammo.lift, 0.0);
+    EXPECT_EQ(ammo.type, 0);
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

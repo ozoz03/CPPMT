@@ -30,3 +30,23 @@ FetchContent_MakeAvailable(googletest)
 
 # тест
 add_subdirectory(tests)
+
+
+# formatting
+# find_package(fmt REQUIRED)
+# target_link_libraries(my_app PRIVATE fmt::fmt)
+# install(TARGETS my_app DESTINATION bin)
+# 1. Locate the clang-format executable
+find_program(CLANG_FORMAT_EXE NAMES clang-format)
+
+if(CLANG_FORMAT_EXE)
+    # 2. Get all source files for a target (or use globbing)
+    file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.hpp *.h *.cc)
+
+    # 3. Add a custom 'format' target
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT_EXE} -i ${ALL_SOURCE_FILES}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        COMMENT "Formatting source files with clang-format..."
+    )
+endif()
