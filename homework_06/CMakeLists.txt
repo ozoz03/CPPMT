@@ -7,29 +7,29 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(ballistics src/main.cpp)
+# add_executable(ballistics src/main.cpp)
 
-target_include_directories(ballistics PRIVATE include)
-target_compile_options(ballistics PRIVATE -Wall -Wextra -pedantic)
-add_library(ballisticsLib src/ballistics.cpp)
-target_include_directories(ballisticsLib PUBLIC include)
-target_compile_options(ballisticsLib PRIVATE -Wall -Wextra -pedantic)
+# target_include_directories(ballistics PRIVATE include)
+# target_compile_options(ballistics PRIVATE -Wall -Wextra -pedantic)
+# add_library(ballisticsLib src/ballistics.cpp)
+# target_include_directories(ballisticsLib PUBLIC include)
+# target_compile_options(ballisticsLib PRIVATE -Wall -Wextra -pedantic)
 
-include(FetchContent)
+# include(FetchContent)
 
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
+# FetchContent_Declare(
+#     googletest
+#     URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+# )
 
-FetchContent_MakeAvailable(googletest)
+# FetchContent_MakeAvailable(googletest)
 
-# доступні таргети 
-# GTest::gtest
-# GTest::gtest_main
+# # доступні таргети 
+# # GTest::gtest
+# # GTest::gtest_main
 
-# тест
-add_subdirectory(tests)
+# # тест
+# add_subdirectory(tests)
 
 
 # formatting
@@ -49,4 +49,48 @@ if(CLANG_FORMAT_EXE)
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMENT "Formatting source files with clang-format..."
     )
+endif()
+
+
+
+
+add_library(ballistics src/ballistics.cpp)
+
+target_include_directories(ballistics PUBLIC include)
+
+add_executable(ballistics_cli src/main.cpp)
+
+target_link_libraries(ballistics_cli PRIVATE ballistics)
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/data/sample_vog17.txt" 
+    "${CMAKE_CURRENT_BINARY_DIR}/data/sample_vog17.txt" 
+    COPYONLY
+)
+
+
+if(NOT CMAKE_CROSSCOMPILING)
+
+  include(FetchContent)
+
+  include(GoogleTest)
+
+  FetchContent_Declare(
+
+      googletest
+
+      URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+
+      DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+
+  )
+
+  FetchContent_MakeAvailable(googletest)
+
+  add_executable(ballistics_tests tests/ballistics_tests.cpp)
+
+  target_link_libraries(ballistics_tests PRIVATE ballistics GTest::gtest_main)
+
+  gtest_discover_tests(ballistics_tests DISCOVERY_MODE PRE_TEST)
+
 endif()

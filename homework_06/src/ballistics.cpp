@@ -1,17 +1,28 @@
 #include "../include/ballistics.hpp"
 
+#include <cstring>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <map>
-#define _USE_MATH_DEFINES
+#define USE_MATH_DEFINES
+
+std::array<char, 32> NextWord(std::ifstream& inputStream)
+{
+    std::string nextWord;
+    inputStream >> nextWord;
+    std::array<char, 32> wordArray = {};
+    std::strncpy(wordArray.data(), nextWord.c_str(), wordArray.size() - 1);
+    wordArray.back() = '\0';
+    return wordArray;
+}
 
 BallisticParams readBallisticFile(const std::string& filename) {
-    BallisticParams params;
+    BallisticParams params = {};
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << filename << std::endl;
+        std::cerr << "Failed to open file: " << filename << '\n';
         exit(1);
     }
     file >> params.xd;
@@ -21,18 +32,18 @@ BallisticParams readBallisticFile(const std::string& filename) {
     file >> params.targetY;
     file >> params.attackSpeed;
     file >> params.accelerationPath;
-    file >> params.ammo_name;
+    params.ammo_name = NextWord(file);
 
     file.close();
-    std::cout << "Ballistic parameters read successfully from file: " << filename << std::endl;
-    std::cout << "xd: " << params.xd << std::endl;
-    std::cout << "yd: " << params.yd << std::endl;
-    std::cout << "zd: " << params.zd << std::endl;
-    std::cout << "targetX: " << params.targetX << std::endl;
-    std::cout << "targetY: " << params.targetY << std::endl;
-    std::cout << "attackSpeed: " << params.attackSpeed << std::endl;
-    std::cout << "accelerationPath: " << params.accelerationPath << std::endl;
-    std::cout << "ammo_name: " << params.ammo_name << std::endl;
+    std::cout << "Ballistic parameters read successfully from file: " << filename << '\n';
+    std::cout << "xd: " << params.xd << '\n';
+    std::cout << "yd: " << params.yd << '\n';
+    std::cout << "zd: " << params.zd << '\n';
+    std::cout << "targetX: " << params.targetX << '\n';
+    std::cout << "targetY: " << params.targetY << '\n';
+    std::cout << "attackSpeed: " << params.attackSpeed << '\n';
+    std::cout << "accelerationPath: " << params.accelerationPath << '\n';
+    std::cout << "ammo_name: " << params.ammo_name.data() << '\n';
 
     return params;
 }
@@ -52,7 +63,7 @@ AmmoParams getAmmoParams(const std::string& ammo_name) {
     ammo_name_mapping["GLIDING-VOG"] = GLIDING_VOG;
     ammo_name_mapping["GLIDING-RKG"] = GLIDING_RKG;
 
-    AmmoParams ammo;
+    AmmoParams ammo = {};
     switch (ammo_name_mapping[ammo_name]) {
         case VOG17:
             ammo.mass = 0.35;
@@ -90,45 +101,45 @@ AmmoParams getAmmoParams(const std::string& ammo_name) {
             break;
 
         default:
-            std::cerr << "Error: Wrong ammo_name." << std::endl;
+            std::cerr << "Error: Wrong ammo_name." << '\n';
             exit(1);
             break;
     }
-    std::cout << "Ammo parameters for " << ammo_name << " retrieved successfully." << std::endl;
-    std::cout << "mass: " << ammo.mass << std::endl;
-    std::cout << "drag: " << ammo.drag << std::endl;
-    std::cout << "lift: " << ammo.lift << std::endl;
-    std::cout << "type: " << ammo.type << std::endl;
+    std::cout << "Ammo parameters for " << ammo_name << " retrieved successfully." << '\n';
+    std::cout << "mass: " << ammo.mass << '\n';
+    std::cout << "drag: " << ammo.drag << '\n';
+    std::cout << "lift: " << ammo.lift << '\n';
+    std::cout << "type: " << ammo.type << '\n';
     return ammo;
 }
 
 float getTimeByCardano(const AmmoParams& bomb, const BallisticParams& params) {
-    float a =
-        bomb.drag * 9.81 * bomb.mass - 2 * bomb.drag * bomb.drag * bomb.lift * params.attackSpeed;
-    float b = -3 * 9.81 * bomb.mass * bomb.mass +
-              3 * bomb.drag * bomb.lift * bomb.mass * params.attackSpeed;
-    float c = 6 * bomb.mass * bomb.mass * params.zd;
-    float p = (-b * b) / (3 * a * a);
-    float q = 2 * b * b * b / (27 * a * a * a) + c / a;
-    float arg = 3 * q / (2 * p) * std::sqrt(-3 / p);
+    auto amg =
+        static_cast<float>(bomb.drag * 9.81 * bomb.mass - 2 * bomb.drag * bomb.drag * bomb.lift * params.attackSpeed);
+    auto bii = static_cast<float>( -3 * 9.81 * bomb.mass * bomb.mass +
+              3 * bomb.drag * bomb.lift * bomb.mass * params.attackSpeed);
+    float cmass = 6 * bomb.mass * bomb.mass * params.zd;
+    float pii = (-bii * bii) / (3 * amg * amg);
+    float quu = 2 * bii * bii * bii / (27 * amg * amg * amg) + cmass / amg;
+    float arg = (3 * quu / (2 * pii) * std::sqrt(-3 / pii));
     if ((arg < -1) || (arg > 1)) {
-        std::cerr << "Error: Wrong model type." << std::endl;
+        std::cerr << "Error: Wrong model type." << '\n';
         exit(1);
     }
 
     float phi = std::acos(arg);
-    float t = 2 * std::sqrt(-p / 3) * std::cos((phi + 4 * M_PI) / 3) - b / (3 * a);
-    std::cout << "a: " << a << std::endl;
-    std::cout << "b: " << b << std::endl;
-    std::cout << "c: " << c << std::endl;
-    std::cout << "p: " << p << std::endl;
-    std::cout << "q: " << q << std::endl;
-    std::cout << "phi: " << phi << std::endl;
-    return t;
+    auto time = static_cast<float>(2 * std::sqrt(-pii / 3) * std::cos((phi + 4 * M_PI) / 3) - bii / (3 * amg));
+    std::cout << "a: " << amg << '\n';
+    std::cout << "b: " << bii << '\n';
+    std::cout << "c: " << cmass << '\n';
+    std::cout << "p: " << pii << '\n';
+    std::cout << "q: " << quu << '\n';
+    std::cout << "phi: " << phi << '\n';
+    return time;
 }
 
 float getDistance(const AmmoParams& bomb, const BallisticParams& params, float time) {
-    float h = params.attackSpeed * time -
+    auto distance = static_cast<float>(params.attackSpeed * time -
               time * time * bomb.drag * params.attackSpeed / (2 * bomb.mass) +
               +time * time * time *
                   (6 * bomb.drag * 9.81 * bomb.lift * bomb.mass -
@@ -146,19 +157,19 @@ float getDistance(const AmmoParams& bomb, const BallisticParams& params, float t
                   (3 * bomb.drag * bomb.drag * bomb.drag * 9.81 * pow(bomb.lift, 3) * bomb.mass -
                    3 * pow(bomb.drag, 4) * bomb.lift * bomb.lift * (1 + bomb.lift * bomb.lift) *
                        params.attackSpeed) /
-                  (36 * (1 + bomb.lift * bomb.lift) * pow(bomb.mass, 4));
-    return h;
+                  (36 * (1 + bomb.lift * bomb.lift) * pow(bomb.mass, 4)));
+    return distance;
 }
 
-void writeStringIntoFile(std::string str) {
+void writeStringIntoFile(const std::string& str) {
     std::ofstream outFile("output.txt");
 
     if (outFile.is_open()) {
-        outFile << str << std::endl;
+        outFile << str << '\n';
 
         outFile.close();
-        std::cout << "File written successfully." << std::endl;
+        std::cout << "File written successfully." << '\n';
     } else {
-        std::cerr << "Error: Could not open the file." << std::endl;
+        std::cerr << "Error: Could not open the file." << '\n';
     }
 }

@@ -1,7 +1,13 @@
 #pragma once
+#include <array>
+
+#include <cstring>
+#include <cmath>
+#include <cstdlib>
+#include <fstream>
 
 struct AmmoParams {
-    char name[32];
+    std::array<char, 32> name;
     float mass;
     float drag;
     float lift;
@@ -21,5 +27,12 @@ struct BallisticParams {
     float targetY;
     float attackSpeed;
     float accelerationPath;
-    char ammo_name[32];
+    std::array<char, 32> ammo_name;
 };
+
+BallisticParams readBallisticFile(const std::string& filename);
+AmmoParams getAmmoParams(const std::string& ammo_name);
+float getTimeByCardano(const AmmoParams& bomb, const BallisticParams& params);
+float getDistance(const AmmoParams& bomb, const BallisticParams& params, float time);
+void writeStringIntoFile(const std::string& str);
+std::array<char, 32> NextWord(std::ifstream& inputstream);  
