@@ -9,10 +9,10 @@ set(SOURCES
     src/telemetry.cpp
 )
 
-add_executable(telemetry_check ${SOURCES})
+add_library(telemetry STATIC src/telemetry.cpp)
+add_executable(telemetry_check src/main.cpp)
 
-add_library(telemetry INTERFACE)
-target_include_directories(telemetry INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(telemetry PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(telemetry_check PRIVATE telemetry)
 
 target_compile_options(telemetry_check PRIVATE -Wall -Wextra -pedantic -g)
