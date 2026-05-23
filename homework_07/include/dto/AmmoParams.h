@@ -1,0 +1,7 @@
+struct AmmoParams {
+	char name[32];
+	float mass;
+	float drag;
+	float lift;
+	unsigned int type;
+};
