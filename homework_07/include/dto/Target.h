@@ -1,4 +1,6 @@
+#pragma once
+#include "Point.h"
+
 struct Target {
-    float x;
-    float y;    
+    Point positions[60];    
 };
