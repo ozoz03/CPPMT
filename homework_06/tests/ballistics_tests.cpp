@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../include/ballistics.hpp"
-#include "../src/ballistics.cpp"
+#include "ballistics.hpp"
 
 TEST(readBallisticFileTest, HandlesCorrectFile) {
     BallisticParams params = readBallisticFile("./data/sample_vog17.txt");

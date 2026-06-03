@@ -89,6 +89,8 @@ if(NOT CMAKE_CROSSCOMPILING)
 
   add_executable(ballistics_tests tests/ballistics_tests.cpp)
 
+  target_include_directories(ballistics_tests PRIVATE include)
+
   target_link_libraries(ballistics_tests PRIVATE ballistics GTest::gtest_main)
 
   gtest_discover_tests(ballistics_tests DISCOVERY_MODE PRE_TEST)

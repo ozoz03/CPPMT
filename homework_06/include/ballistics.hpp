@@ -1,9 +1,9 @@
 #pragma once
-#include <array>
 
-#include <cstring>
+#include <array>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 
 struct AmmoParams {
@@ -35,4 +35,4 @@ AmmoParams getAmmoParams(const std::string& ammo_name);
 float getTimeByCardano(const AmmoParams& bomb, const BallisticParams& params);
 float getDistance(const AmmoParams& bomb, const BallisticParams& params, float time);
 void writeStringIntoFile(const std::string& str);
-std::array<char, 32> NextWord(std::ifstream& inputstream);  
+std::array<char, 32> NextWord(std::ifstream& inputstream);

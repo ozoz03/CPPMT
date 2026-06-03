@@ -1,15 +1,14 @@
-#include "../include/ballistics.hpp"
+#include "ballistics.hpp"
 
-#include <cstring>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
 #define USE_MATH_DEFINES
 
-std::array<char, 32> NextWord(std::ifstream& inputStream)
-{
+std::array<char, 32> NextWord(std::ifstream& inputStream) {
     std::string nextWord;
     inputStream >> nextWord;
     std::array<char, 32> wordArray = {};
@@ -114,10 +113,10 @@ AmmoParams getAmmoParams(const std::string& ammo_name) {
 }
 
 float getTimeByCardano(const AmmoParams& bomb, const BallisticParams& params) {
-    auto amg =
-        static_cast<float>(bomb.drag * 9.81 * bomb.mass - 2 * bomb.drag * bomb.drag * bomb.lift * params.attackSpeed);
-    auto bii = static_cast<float>( -3 * 9.81 * bomb.mass * bomb.mass +
-              3 * bomb.drag * bomb.lift * bomb.mass * params.attackSpeed);
+    auto amg = static_cast<float>(bomb.drag * 9.81 * bomb.mass -
+                                  2 * bomb.drag * bomb.drag * bomb.lift * params.attackSpeed);
+    auto bii = static_cast<float>(-3 * 9.81 * bomb.mass * bomb.mass +
+                                  3 * bomb.drag * bomb.lift * bomb.mass * params.attackSpeed);
     float cmass = 6 * bomb.mass * bomb.mass * params.zd;
     float pii = (-bii * bii) / (3 * amg * amg);
     float quu = 2 * bii * bii * bii / (27 * amg * amg * amg) + cmass / amg;
@@ -128,36 +127,37 @@ float getTimeByCardano(const AmmoParams& bomb, const BallisticParams& params) {
     }
 
     float phi = std::acos(arg);
-    auto time = static_cast<float>(2 * std::sqrt(-pii / 3) * std::cos((phi + 4 * M_PI) / 3) - bii / (3 * amg));
-    std::cout << "a: " << amg << '\n';
-    std::cout << "b: " << bii << '\n';
-    std::cout << "c: " << cmass << '\n';
-    std::cout << "p: " << pii << '\n';
-    std::cout << "q: " << quu << '\n';
-    std::cout << "phi: " << phi << '\n';
+    auto time = static_cast<float>(2 * std::sqrt(-pii / 3) * std::cos((phi + 4 * M_PI) / 3) -
+                                   bii / (3 * amg));
+    // std::cout << "a: " << amg << '\n';
+    // std::cout << "b: " << bii << '\n';
+    // std::cout << "c: " << cmass << '\n';
+    // std::cout << "p: " << pii << '\n';
+    // std::cout << "q: " << quu << '\n';
+    // std::cout << "phi: " << phi << '\n';
     return time;
 }
 
 float getDistance(const AmmoParams& bomb, const BallisticParams& params, float time) {
-    auto distance = static_cast<float>(params.attackSpeed * time -
-              time * time * bomb.drag * params.attackSpeed / (2 * bomb.mass) +
-              +time * time * time *
-                  (6 * bomb.drag * 9.81 * bomb.lift * bomb.mass -
-                   6 * bomb.drag * bomb.drag * (bomb.lift * bomb.lift - 1) * params.attackSpeed) /
-                  (36 * bomb.mass * bomb.mass) +
-              +pow(time, 4) *
-                  (-6 * bomb.drag * bomb.drag * 9.81 * bomb.lift *
-                       (1 + bomb.lift * bomb.lift + pow(bomb.lift, 4)) * bomb.mass +
-                   3 * bomb.drag * bomb.drag * bomb.drag * bomb.lift * bomb.lift *
-                       (1 + bomb.lift * bomb.lift) * params.attackSpeed +
-                   6 * bomb.drag * bomb.drag * bomb.drag * pow(bomb.lift, 4) *
-                       (1 + bomb.lift * bomb.lift) * params.attackSpeed) /
-                  (36 * pow(1 + bomb.lift * bomb.lift, 2) * bomb.mass * bomb.mass * bomb.mass) +
-              +pow(time, 5) *
-                  (3 * bomb.drag * bomb.drag * bomb.drag * 9.81 * pow(bomb.lift, 3) * bomb.mass -
-                   3 * pow(bomb.drag, 4) * bomb.lift * bomb.lift * (1 + bomb.lift * bomb.lift) *
-                       params.attackSpeed) /
-                  (36 * (1 + bomb.lift * bomb.lift) * pow(bomb.mass, 4)));
+    auto distance = static_cast<float>(
+        params.attackSpeed * time - time * time * bomb.drag * params.attackSpeed / (2 * bomb.mass) +
+        +time * time * time *
+            (6 * bomb.drag * 9.81 * bomb.lift * bomb.mass -
+             6 * bomb.drag * bomb.drag * (bomb.lift * bomb.lift - 1) * params.attackSpeed) /
+            (36 * bomb.mass * bomb.mass) +
+        +pow(time, 4) *
+            (-6 * bomb.drag * bomb.drag * 9.81 * bomb.lift *
+                 (1 + bomb.lift * bomb.lift + pow(bomb.lift, 4)) * bomb.mass +
+             3 * bomb.drag * bomb.drag * bomb.drag * bomb.lift * bomb.lift *
+                 (1 + bomb.lift * bomb.lift) * params.attackSpeed +
+             6 * bomb.drag * bomb.drag * bomb.drag * pow(bomb.lift, 4) *
+                 (1 + bomb.lift * bomb.lift) * params.attackSpeed) /
+            (36 * pow(1 + bomb.lift * bomb.lift, 2) * bomb.mass * bomb.mass * bomb.mass) +
+        +pow(time, 5) *
+            (3 * bomb.drag * bomb.drag * bomb.drag * 9.81 * pow(bomb.lift, 3) * bomb.mass -
+             3 * pow(bomb.drag, 4) * bomb.lift * bomb.lift * (1 + bomb.lift * bomb.lift) *
+                 params.attackSpeed) /
+            (36 * (1 + bomb.lift * bomb.lift) * pow(bomb.mass, 4)));
     return distance;
 }
 

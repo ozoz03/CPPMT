@@ -1,8 +1,8 @@
-#pragma 
+#pragma
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 #include <span>
+#include <sstream>
 
 #include "ballistics.hpp"
 
@@ -24,13 +24,13 @@ int main(int argc, char** argv) {
     std::cout << "distance: " << hDist << '\n';
 
     float Distance = std::sqrt((params.targetX - params.xd) * (params.targetX - params.xd) +
-                        (params.targetY - params.yd) * (params.targetY - params.yd));
+                               (params.targetY - params.yd) * (params.targetY - params.yd));
     std::stringstream sstr = {};
     if ((hDist + params.accelerationPath) > Distance) {
-        float xdI =
-            params.targetX - (params.targetX - params.xd) * (hDist + params.accelerationPath) / Distance;
-        float ydI =
-            params.targetY - (params.targetY - params.yd) * (hDist + params.accelerationPath) / Distance;
+        float xdI = params.targetX -
+                    (params.targetX - params.xd) * (hDist + params.accelerationPath) / Distance;
+        float ydI = params.targetY -
+                    (params.targetY - params.yd) * (hDist + params.accelerationPath) / Distance;
         Point pointI = {xdI, ydI};
         std::cout << "intermediate point: " << pointI.x << ", " << pointI.y << '\n';
         sstr << std::fixed << std::setprecision(3) << pointI.x << ", " << pointI.y;
