@@ -1,5 +1,0 @@
-Circle count: 5
-Drone position:  (7.5, 0, 100)
-Drone direction: 0 
-Drone state: ACCELERATING 
-Current target: 0 
