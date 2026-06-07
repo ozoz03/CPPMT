@@ -3,6 +3,9 @@
 #include "MissionBuilder.cpp"
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <iostream>
+#include <string>
+#include "config.hpp"
 
 class JsonConfigLoader : public IConfigLoader {
 public:
@@ -23,9 +26,9 @@ public:
 		configBuilder.hitRadius(jsonData["drone"]["hitRadius"]);
 		configBuilder.angularSpeed(jsonData["drone"]["angularSpeed"]);
 		configBuilder.turnThreshold(jsonData["drone"]["turnThreshold"]);
-        configBuilder.maxTargets(jsonData["drone"]["maxTargets"]);
         configBuilder.ammo(jsonData["ammo"].get<std::string>().c_str());	
         file.close();
+        std::cout << "Config loaded successfully from " << filename << std::endl;
     };
     
     MissionConfig getConfig() override {
@@ -41,7 +44,7 @@ private:
     MissionBuilder configBuilder;
     AmmoParams ammoParams;
     void loadAmmoParams(const std::string& ammoName) {
-        std::ifstream file("ammo.json");
+        std::ifstream file(DATA_DIR_PATH.data() + std::string("/ammo.json"));
         if (!file.is_open()) {
             throw std::runtime_error("Could not open ammo file");
         };

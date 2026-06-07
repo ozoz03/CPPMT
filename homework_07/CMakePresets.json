@@ -9,7 +9,7 @@
     {
       "name": "debug",
       "displayName": "Debug",
-      "description": "Debug build для занять блоку 2: символи для GDB і зрозуміла структура build/debug.",
+      "description": "Debug build/debug.",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/debug",
       "cacheVariables": {

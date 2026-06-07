@@ -3,26 +3,24 @@
 #include "JsonTargetProvider.cpp"
 #include "JsonConfigLoader.cpp"
 #include "MissionConfig.h"
-#include "IBallisticSolver.h"
-#include "IMission.h"
-#include "ITargetProvider.h"
 #include "AmmoParams.h" 
-
+#include "config.hpp"
 
 
 int main() {
     JsonConfigLoader  jsonConfigLoader;
-    jsonConfigLoader.load("config.json");
-    MissionConfig configSource = jsonConfigLoader.getConfig();
+    jsonConfigLoader.load(DATA_DIR_PATH.data() + std::string("/config.json"));
+    MissionConfig missionConfig = jsonConfigLoader.getConfig();
+    AmmoParams bomb = jsonConfigLoader.getAmmoParams();
 
-    JsonTargetProvider provider("targets.json");
-    AnalyticalSolver   analytical;
+    JsonTargetProvider provider(DATA_DIR_PATH.data() + std::string("/targets.json"));
+    AnalyticalSolver analytical;
     Mission mission(&analytical, &provider);
-    mission.init(configSource);
+    mission.init(missionConfig, bomb);
 
-    while (mission.hasNext()) {
+    do {
         mission.step();    
-    };
+    } while (mission.hasNext());
     
     return 0;
 }

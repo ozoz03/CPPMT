@@ -1,49 +1,74 @@
-#include "IMission.h"
 #include "IBallisticSolver.h"
 #include "ITargetProvider.h"
 #include "Target.h"
 #include "MissionConfig.h"
 #include "AmmoParams.h"
-#include "MissionBuilder.cpp"
 #include "Point.h"
 #include <iostream>
+#include <array>
+#include "SimStep.h"
+#include "Utility.cpp"
 
 
-class Mission : public IMission {
+class Mission   {
     IBallisticSolver* solver;   // стратегія
-    ITargetProvider*  targets;
+    ITargetProvider*  targetProvider; // провайдер цілей
 private:
-    int currentTargetIndex; 
-    std::vector<float> targetDistances;
+    int currentStepIndex = 0;
     MissionConfig cfg;
+    AmmoParams bomb;
     int cycleCount = 0;
+    float currentTime = 0.0f;
+    const int MAX_STEPS = 1000;
+
 
 public:
-    Mission(IBallisticSolver* s, ITargetProvider* t) : solver(s), targets(t) {}
+    Mission(IBallisticSolver* s, ITargetProvider* t) : solver(s), targetProvider(t) {
+        std::cout << "Mission initialized with solver and target provider." << std::endl;
+    }
  
-    Point computeDrop(int currentStepIndex, Point dronePos, int currentTargetIndex, const AmmoParams& ammo) override{
-        Target t = targets->getTarget(currentTargetIndex);
-        return solver->solve(0.1f, dronePos, t.positions[currentStepIndex], ammo);
+    Point computeDrop(int currentStepIndex, const MissionConfig& cfg) {
+        std::cout << "Computing drop for target " << solver->getCurrentTargetIndex() << " at step " << currentStepIndex << std::endl;
+        return solver->solve(currentStepIndex, targetProvider->getTargets(), cfg, currentTime, bomb );
     };
 
-    int getTargetCount() override { return targets->getTargetCount(); } ;
+    int getTargetCount() { return targetProvider->getTargetCount(); } ;
 
-    void changeSolver(const IBallisticSolver& s) override { solver = &s; };
+    void changeSolver(IBallisticSolver* s) { solver = s; };
 
     
-    void init(const MissionConfig& cfg) override {
+    void init(const MissionConfig& cfg, const AmmoParams& bomb) {
+        std::cout << "Initializing mission with config: " << std::endl;
         this->cfg = cfg;
+        this->bomb = bomb;
+        SimStep** simSteps = new SimStep*[MAX_STEPS];
+	    simSteps[0] = new SimStep{ {cfg.startPos.x, cfg.startPos.y}, cfg.initialDir, STOPPED, -1, cfg.startPos, {0,0}, {0,0} };
+        solver->setSimSteps(simSteps);
+        std::cout << "Mission initialized with config and ammo parameters." << std::endl;
     };
 
-    bool hasNext() override{
+    bool hasNext() {
+        cycleCount++;
+        // add time step and increment cycle count
+		currentTime += cfg.simTimeStep;
+        std::cout << "Cycle " << cycleCount << ": Checking if mission has next step..." << std::endl;
+        
         // check if current target is hit
-		if (targetDistances[currentTargetIndex] <= cfg.hitRadius) {
-			std::cout << "Target " << currentTargetIndex << " is hit!" << std::endl;
-			LOG("Simulation complete. Steps: " << cycleCount);
+		if (solver->getCurrentDistance() <= cfg.hitRadius) {
+			std::cout << "Target " << solver->getCurrentTargetIndex() << " is hit!" << std::endl;
+			std::cout << "Simulation complete. Steps: " << cycleCount << std::endl;
 			return false; // mission complete
-		} 
-        return currentTargetIndex < targets->getTargetCount(); 
+		}
+        std::cout << "Checking next target " << solver->getCurrentTargetIndex() << ", step " << currentStepIndex << std::endl;
+        return currentStepIndex < targetProvider->getTargetCount(); 
     }
-    void step() override { currentTargetIndex++; };
-    void reset() override { currentTargetIndex = 0; };
+    void step()  {
+        std::cout << "Processing target " << solver->getCurrentTargetIndex() << std::endl;
+        // Simulate the step and calculate distance to target
+        std::cout << "Calculating drop for target " << solver->getCurrentTargetIndex() << " at step " << currentStepIndex << std::endl;
+        currentStepIndex++;
+        Point dropPoint = computeDrop(currentStepIndex, cfg);
+        std::cout << "Computed drop point: (" << dropPoint.x << ", " << dropPoint.y << ")" << std::endl;
+    };
+    void reset()  { currentStepIndex = 0; };
 };

@@ -4,9 +4,9 @@
 
 class ITargetProvider {
 public:
-    virtual int    getTargetCount() = 0;
+    virtual int getTargetCount() = 0;
     virtual Target getTarget(int index) = 0;
-    virtual std::vector<Target> getTargets() const = 0;
+    virtual Target** getTargets() = 0;
     
     virtual ~ITargetProvider() {}
 };
