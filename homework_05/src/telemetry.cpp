@@ -1,5 +1,6 @@
 #include "telemetry.hpp"
 
+#include <cstdio>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -58,7 +59,8 @@ double parse_double(const char* text) {
     const double value = std::strtod(text, &end);
 
     if (end == text) {
-        std::abort();
+        std::cerr << "error: failed to parse double value: " << text << '\n';
+        exit(1);
     }
 
     return value;
@@ -67,9 +69,12 @@ double parse_double(const char* text) {
 Frame parse_frame(char line[]) {
     char* fields[EXPECTED_FIELD_COUNT] = {};
     const int field_count = split_line(line, fields, EXPECTED_FIELD_COUNT);
-    (void)field_count;
-
     Frame frame{};
+    if (field_count != EXPECTED_FIELD_COUNT) {
+        std::cerr << "error: expected " << EXPECTED_FIELD_COUNT
+                  << " fields, but got " << field_count << '\n';
+        exit(1);
+    }
     frame.timestamp_ms = parse_long(fields[0]);
     frame.seq = parse_int(fields[1]);
     frame.voltage_v = parse_double(fields[2]);
@@ -82,7 +87,10 @@ Frame parse_frame(char line[]) {
 
 double compute_frame_rate_hz(const Frame frames[], int frame_count) {
     const long elapsed_ms = frames[frame_count - 1].timestamp_ms - frames[0].timestamp_ms;
-
+    if(elapsed_ms <= 0) {
+        std::cerr << "error: invalid time delta for frame rate calculation: " << elapsed_ms << " ms\n";
+        exit(1);
+    }
     return static_cast<double>((frame_count - 1) * 1000 / elapsed_ms);
 }
 
@@ -90,7 +98,7 @@ int read_frames(const char* path, Frame frames[], int max_frames) {
     std::ifstream input{path};
     if (!input) {
         std::cerr << "error: failed to open input file: " << path << '\n';
-        return 0;
+        exit(1);
     }
 
     int frame_count = 0;
@@ -134,6 +142,11 @@ Summary summarize(const Frame frames[], int frame_count) {
         if (frames[i].voltage_v < 22.0) {
             ++summary.low_voltage_frames;
         }
+    }
+
+    if(frame_count == 0) {
+        std::cerr << "error: no frames to summarize\n";
+        exit(1);
     }
 
     const int temperature_tenths = static_cast<int>(temperature_sum * 10.0) / frame_count;
