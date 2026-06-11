@@ -1,6 +1,6 @@
 #pragma once
-#include "Target.h"
-#include <vector>
+
+struct Target;
 
 class ITargetProvider {
 public:

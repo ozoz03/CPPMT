@@ -23,10 +23,6 @@ private:
 
 
 public:
-    Mission(IBallisticSolver* s, ITargetProvider* t) : solver(s), targetProvider(t) {
-        std::cout << "Mission initialized with solver and target provider." << std::endl;
-    }
- 
     Point computeDrop(int currentStepIndex, const MissionConfig& cfg) {
         std::cout << "Computing drop for target " << solver->getCurrentTargetIndex() << " at step " << currentStepIndex << std::endl;
         return solver->solve(currentStepIndex, targetProvider->getTargets(), cfg, currentTime, bomb );
@@ -37,7 +33,7 @@ public:
     void changeSolver(IBallisticSolver* s) { solver = s; };
 
     
-    void init(const MissionConfig& cfg, const AmmoParams& bomb) {
+    Mission createMission(const MissionConfig& cfg, const AmmoParams& bomb) {
         std::cout << "Initializing mission with config: " << std::endl;
         this->cfg = cfg;
         this->bomb = bomb;

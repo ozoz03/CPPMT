@@ -1,6 +1,6 @@
 #include "MissionConfig.h"
 #include "IConfigLoader.h"
-#include "MissionBuilder.cpp"
+#include "MissionBuilder.h"
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <iostream>
@@ -8,8 +8,31 @@
 #include "config.hpp"
 
 class JsonConfigLoader : public IConfigLoader {
-public:
-    void load(const std::string& filename) override{
+
+public:     
+    JsonConfigLoader(){
+        std::cout << "JsonConfigLoader default constructor called" << std::endl;
+    };
+    JsonConfigLoader(const std::string filename) : IConfigLoader(filename)  {       
+        this->filename = filename;
+        std::cout << "JsonConfigLoader 1111 created with file: " << filename << std::endl;
+        load();
+    }
+    
+    MissionConfig getConfig() override {
+        return configBuilder.build();
+    };
+
+    AmmoParams getAmmoParams() override {
+        loadAmmoParams(configBuilder.build().ammoName);
+        return ammoParams;
+    };
+
+private:
+    MissionBuilder configBuilder;
+    AmmoParams ammoParams;
+
+    void load() override{
         std::ifstream file(filename);
         if (!file.is_open()) {
             throw std::runtime_error("Could not open file: " + filename);
@@ -30,19 +53,7 @@ public:
         file.close();
         std::cout << "Config loaded successfully from " << filename << std::endl;
     };
-    
-    MissionConfig getConfig() override {
-        return configBuilder.build();
-    };
 
-    AmmoParams getAmmoParams() override {
-        loadAmmoParams(configBuilder.build().ammoName);
-        return ammoParams;
-    };
-
-private:
-    MissionBuilder configBuilder;
-    AmmoParams ammoParams;
     void loadAmmoParams(const std::string& ammoName) {
         std::ifstream file(DATA_DIR_PATH.data() + std::string("/ammo.json"));
         if (!file.is_open()) {
@@ -66,3 +77,4 @@ private:
         file.close();            
     }
 };
+
