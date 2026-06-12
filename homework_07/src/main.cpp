@@ -45,9 +45,9 @@ int main() {
     MissionConfig missionConfig = jsonConfigLoader->getConfig();
     AmmoParams bomb = jsonConfigLoader->getAmmoParams();
 
-    auto* provider = createProvider(SourceType::JSON, DATA_DIR_PATH.data() + std::string("/targets.json"));
-    auto analytical = createBallisticSolver();
-    auto* mission = createMission(analytical.get(), provider);
+    // auto* provider = createProvider(SourceType::JSON, DATA_DIR_PATH.data() + std::string("/targets.json"));
+    // auto analytical = createBallisticSolver();
+    // auto* mission = createMission(analytical.get(), provider);
 
     // do {
         // mission->step();    
