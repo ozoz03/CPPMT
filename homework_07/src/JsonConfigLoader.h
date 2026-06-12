@@ -12,7 +12,6 @@ public:
     };
     JsonConfigLoader(const std::string filename) : IConfigLoader(filename) {
         this->filename = filename;
-        std::cout << "JsonConfigLoader created with file: " << filename << std::endl;
         load();
     };
     ~JsonConfigLoader() override = default;

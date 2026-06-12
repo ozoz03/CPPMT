@@ -13,7 +13,7 @@
 
 std::unique_ptr<IConfigLoader> ConfigLoaderFactory::createConfigLoader(const std::string filename){
         if(filename.substr(filename.find_last_of(".") + 1) == "json"){
-            return std::make_unique<JsonConfigLoader>("filename");
+            return std::make_unique<JsonConfigLoader>(filename);
         }
         throw std::runtime_error("Unsupported file format: " + filename);
 };
