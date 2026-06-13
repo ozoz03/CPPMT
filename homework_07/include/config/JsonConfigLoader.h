@@ -6,10 +6,10 @@
 
 
 class JsonConfigLoader : public IConfigLoader {
-public: 
+public:
     JsonConfigLoader() : IConfigLoader() {
         std::cout << "JsonConfigLoader default constructor called" << std::endl;
-    };
+    }; 
     JsonConfigLoader(const std::string filename) : IConfigLoader(filename) {
         this->filename = filename;
         load();

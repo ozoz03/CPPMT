@@ -104,3 +104,6 @@ core.*
 Thumbs.db
 
 .cache/
+
+# Output file
+output.txt

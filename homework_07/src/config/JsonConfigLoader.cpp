@@ -1,6 +1,6 @@
 #include "MissionConfig.h"
-#include "JsonConfigLoader.h"
 #include <fstream>
+#include "JsonConfigLoader.h"
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <string>
@@ -38,7 +38,7 @@ void JsonConfigLoader::load() {
         std::cout << "Config loaded successfully from " << filename << std::endl;
     };
 
-    void JsonConfigLoader::loadAmmoParams(const std::string& ammoName) {
+void JsonConfigLoader::loadAmmoParams(const std::string& ammoName) {
         std::ifstream file(DATA_DIR_PATH.data() + std::string("/ammo.json"));
         if (!file.is_open()) {
             throw std::runtime_error("Could not open ammo file");
@@ -59,4 +59,4 @@ void JsonConfigLoader::load() {
             }
         }
         file.close();            
-    };
+};

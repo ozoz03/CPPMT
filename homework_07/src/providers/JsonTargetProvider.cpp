@@ -3,25 +3,14 @@
 #include <nlohmann/json.hpp>
 #include "ITargetProvider.h"
 #include "Target.h"
-#include "Point.h"
+#include "JsonTargetProvider.h"
 #include <iostream>
 
-class JsonTargetProvider: public ITargetProvider {
-private:
-    Target** targets;
-    int targetCount;
-public:
-    ~JsonTargetProvider() {
-        for (int i = 0; i < targetCount; i++) {
-            delete[] targets[i];
-        }
-        delete[] targets;
-    }
 
-    JsonTargetProvider(const std::string& filePath) {
-        std::ifstream file(filePath);
+void JsonTargetProvider::load() {
+        std::ifstream file(filename);
         if (!file.is_open()) {
-            throw std::runtime_error("Could not open file: " + filePath);
+            throw std::runtime_error("Could not open file: " + filename);
         }   
         nlohmann::json jsonData;
         file >> jsonData;
@@ -41,20 +30,16 @@ public:
 		}
             
 	}
-    std::cout << "Successfully loaded " << targetCount << " targets from " << filePath << std::endl;
+    std::cout << "Successfully loaded " << targetCount << " targets from " << filename << std::endl;
+};  
+    
+Target JsonTargetProvider::getTarget(int index) {
+    if (index < 0 || index >= targetCount) {
+        throw std::out_of_range("Index out of range");
+    }
+    return *targets[index];
+};
 
-    }   
-    int getTargetCount() override {
-        return targetCount;
-    }
-    Target getTarget(int index) override {
-        if (index < 0 || index >= targetCount) {
-            throw std::out_of_range("Index out of range");
-        }
-        return *targets[index];
-    }
-
-    Target** getTargets() override {
-        return targets;
-    }
+Target** JsonTargetProvider::getTargets() {
+    return targets;
 };

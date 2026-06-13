@@ -1,6 +1,7 @@
 #include "config.hpp"
-#include "ConfigLoaderFactory.h"
+#include "ComponentFactory.h"
 #include "IConfigLoader.h"
+#include "SourceType.h"
 #include <iostream>
 
 // ITargetProvider* createProvider(SourceType sourceType, const std::string& filename){
@@ -45,7 +46,8 @@ int main() {
     MissionConfig missionConfig = jsonConfigLoader->getConfig();
     AmmoParams bomb = jsonConfigLoader->getAmmoParams();
 
-    // auto* provider = createProvider(SourceType::JSON, DATA_DIR_PATH.data() + std::string("/targets.json"));
+    std::string filePath = DATA_DIR_PATH.data() + std::string("/targets.json");
+    auto provider = TargetProviderFactory::createTargetProvider(Source::JSON, filePath);
     // auto analytical = createBallisticSolver();
     // auto* mission = createMission(analytical.get(), provider);
 
