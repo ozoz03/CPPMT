@@ -1,6 +1,8 @@
 #include "ComponentFactory.h"
+#include "IBallisticSolver.h"
 #include "JsonConfigLoader.h"
 #include "JsonTargetProvider.h"
+#include "AnalyticalSolver.h"
 #include "SourceType.h"
 #include <stdexcept>
 #include <memory>
@@ -17,4 +19,8 @@ std::unique_ptr<ITargetProvider> TargetProviderFactory::createTargetProvider(con
             return std::make_unique<JsonTargetProvider>(filename);
         }
         throw std::runtime_error("Unsupported file format: " + filename);
+};
+
+std::unique_ptr<IBallisticSolver> BallisticSolverFactory::createBallisticSolver() {
+    return std::make_unique<AnalyticalSolver>();
 };

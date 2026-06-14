@@ -1,4 +1,3 @@
-#pragma once
 #include "DronePhase.h"
 #include "SimStep.h"
 #include "AmmoParams.h"

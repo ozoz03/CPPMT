@@ -12,11 +12,11 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-add_executable(homework07 src/main.cpp src/config/ComponentFactory.cpp src/config/JsonConfigLoader.cpp src/providers/JsonTargetProvider.cpp)
+add_executable(homework07 src/main.cpp src/config/ComponentFactory.cpp src/config/JsonConfigLoader.cpp src/providers/JsonTargetProvider.cpp src/solvers/AnalyticalSolver.cpp src/Utility.cpp)
 
 target_link_libraries(homework07 PRIVATE nlohmann_json::nlohmann_json)
 
-target_include_directories(homework07 PUBLIC  ./include/interfaces ./include/config ./include/dto ./include/providers ./src ./src/config ./src/providers)
+target_include_directories(homework07 PUBLIC  ./include ./include/interfaces ./include/config ./include/dto ./include/providers ./src ./src/config ./src/providers ./src/solvers ./include/solvers)
 
 # Expose the absolute data path to CMake variable context
 set(DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")

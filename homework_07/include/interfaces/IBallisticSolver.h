@@ -6,7 +6,6 @@ struct AmmoParams;
 struct SimStep;
 struct Point;
 
-// class AnalyticalSolver;
 
 class IBallisticSolver {
     public:

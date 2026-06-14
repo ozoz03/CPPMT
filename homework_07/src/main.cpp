@@ -1,3 +1,4 @@
+#include "MissionProcessor.h"
 #include "config.hpp"
 #include "ComponentFactory.h"
 #include "IConfigLoader.h"
@@ -47,16 +48,14 @@ int main() {
     AmmoParams bomb = jsonConfigLoader->getAmmoParams();
 
     std::string filePath = DATA_DIR_PATH.data() + std::string("/targets.json");
-    auto provider = TargetProviderFactory::createTargetProvider(Source::JSON, filePath);
-    // auto analytical = createBallisticSolver();
-    // auto* mission = createMission(analytical.get(), provider);
+    auto targetProvider = TargetProviderFactory::createTargetProvider(Source::JSON, filePath);
+    auto analyticalSolver = BallisticSolverFactory::createBallisticSolver();
+    auto mission = Mission(analyticalSolver.get(), targetProvider.get());
+    mission.init(missionConfig, bomb);
 
-    // do {
-        // mission->step();    
-    // } while (mission->hasNext());
+    do {
+        mission.step();    
+    } while (mission.hasNext());
     
-    // delete mission;
-    // delete provider;
-    // delete analytical;
     return 0;
 }
