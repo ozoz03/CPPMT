@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
-#include "MissionConfig.h"
-#include "AmmoParams.h"
+
+struct MissionConfig;
+struct AmmoParams;
 
 
 class IConfigLoader {

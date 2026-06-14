@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 #include "config.hpp"
-
+#include "AmmoParams.h"
     
 MissionConfig JsonConfigLoader::getConfig() {
     return configBuilder.build();

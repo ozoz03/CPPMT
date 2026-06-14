@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+
 struct Target;
 struct MissionConfig;
 struct AmmoParams;

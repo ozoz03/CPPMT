@@ -3,6 +3,7 @@
 #include "MissionBuilder.h"
 #include <string>
 #include <iostream>
+#include "AmmoParams.h"
 
 
 class JsonConfigLoader : public IConfigLoader {
