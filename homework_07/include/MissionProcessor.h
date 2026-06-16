@@ -1,12 +1,10 @@
 #pragma once
 #include "IBallisticSolver.h"
 #include "ITargetProvider.h"
-#include "Target.h"
 #include "MissionConfig.h"
 #include "AmmoParams.h"
 #include "Point.h"
 #include <iostream>
-#include <array>
 #include "SimStep.h"
 
 enum DronePhase {STOPPED = 0, ACCELERATING=1, DECELERATING=2, TURNING=3, MOVING=4};

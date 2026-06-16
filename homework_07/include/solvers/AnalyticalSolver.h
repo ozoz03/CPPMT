@@ -10,9 +10,9 @@ class AnalyticalSolver : public IBallisticSolver {
     private:
         SimStep** simSteps;
         int currentTargetIndex = 0;
-		std::array<float, 5> targetDistances;
-		double targetsToDroneAngleRadians[5];
-		double targetAngleDiff[5];
+		std::vector<float> targetDistances;
+		std::vector<double> targetsToDroneAngleRadians;
+		std::vector<double> targetAngleDiff;
 
     public:
     AnalyticalSolver(){
@@ -32,6 +32,6 @@ class AnalyticalSolver : public IBallisticSolver {
 		return targetDistances[currentTargetIndex];
 	}
 	
-    Point solve(int currentStepIndex, Target** targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) override;
+    Point solve(int currentStepIndex, std::vector<Target>& targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) override;
     ~AnalyticalSolver() override {};   
 };  

@@ -10,7 +10,7 @@
 
 
 	
-Point AnalyticalSolver::solve(int currentStepIndex, Target** targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) {
+Point AnalyticalSolver::solve(int currentStepIndex, std::vector<Target>& targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) {
         
         if (currentStepIndex > 0) {
 			    simSteps[currentStepIndex] = new SimStep(*simSteps[currentStepIndex-1]);
@@ -38,13 +38,13 @@ Point AnalyticalSolver::solve(int currentStepIndex, Target** targets, const Miss
 		}
 		}
 
-        double targetToDroneAngleRadians[5]= {0,0,0,0,0};
+        std::vector<double> targetToDroneAngleRadians(targets.size(), 0);
 		targetDistances = calculateTargetDistances(currentTime, targets, simSteps[currentStepIndex], cfg, targetsToDroneAngleRadians);
 
-		std::array<float, 5> targetDistanceTimes = getFlightTimeToTarget(targetDistances, cfg);
+		std::vector<float> targetDistanceTimes = getFlightTimeToTarget(targetDistances, cfg);
 
 		// add turn time to flight time
-		for (int i=0; i < 5; ++i) {
+		for (std::size_t i=0; i < targetToDroneAngleRadians.size(); ++i) {
 			targetDistanceTimes[i] += getTurnTime(i, simSteps[currentStepIndex], targetToDroneAngleRadians[i], targetAngleDiff, cfg);
 			std::cout << "Total time to target [" << i << "] = " << targetDistanceTimes[i] << std::endl;
 		}

@@ -5,6 +5,7 @@
 #include "Target.h"
 #include "JsonTargetProvider.h"
 #include <iostream>
+#include <vector>
 
 
 void JsonTargetProvider::load() {
@@ -18,28 +19,27 @@ void JsonTargetProvider::load() {
 	    targetCount = jsonData["targetCount"];
 	    int timeSteps = jsonData["timeSteps"];
  
-	    targets = new Target*[targetCount];
+	    std::vector<Target>targets(targetCount);
 	    for (int i = 0; i < targetCount; i++) {
-    	    targets[i] = new Target[timeSteps];
             
             // targets[i]->positions = new Point*[60];
 		    for (int j = 0; j < timeSteps; j++) {
-        	    targets[i]->positions[j].x = jsonData["targets"][i]["positions"][j]["x"];
-        	    targets[i]->positions[j].y = jsonData["targets"][i]["positions"][j]["y"];
-			    std::cout << "Loaded target " << i << " position at time step " << j << ": (" << targets[i]->positions[j].x << ", " << targets[i]->positions[j].y << ")" << std::endl;
+        	    targets[i].positions[j].x = jsonData["targets"][i]["positions"][j]["x"];
+        	    targets[i].positions[j].y = jsonData["targets"][i]["positions"][j]["y"];
+			    std::cout << "Loaded target " << i << " position at time step " << j << ": (" << targets[i].positions[j].x << ", " << targets[i].positions[j].y << ")" << std::endl;
 		}
             
 	}
     std::cout << "Successfully loaded " << targetCount << " targets from " << filename << std::endl;
 };  
     
-Target JsonTargetProvider::getTarget(int index) {
+Target& JsonTargetProvider::getTarget(int index) {
     if (index < 0 || index >= targetCount) {
         throw std::out_of_range("Index out of range");
     }
-    return *targets[index];
+    return targets[index];
 };
 
-Target** JsonTargetProvider::getTargets() {
+std::vector<Target>& JsonTargetProvider::getTargets() {
     return targets;
 };

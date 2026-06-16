@@ -1,12 +1,13 @@
 #pragma once
 #include "ITargetProvider.h"
 #include <string>
+#include <vector>
 #include "Target.h"
 
 
 class JsonTargetProvider: public ITargetProvider {
 private:
-    Target** targets;
+    std::vector<Target> targets;
     int targetCount;
 public:
     JsonTargetProvider(): ITargetProvider(){};
@@ -15,17 +16,14 @@ public:
         load();
     }
     ~JsonTargetProvider() {
-        for (int i = 0; i < targetCount; i++) {
-            delete[] targets[i];
-        }
-        delete[] targets;
+        std::vector<Target>().swap(targets);
     }
 
     
     int getTargetCount() override {
         return targetCount;
     }
-    Target getTarget(int index) override;
-    Target** getTargets() override;
+    Target& getTarget(int index) override;
+    std::vector<Target>& getTargets() override;
     void load() override;
 };   

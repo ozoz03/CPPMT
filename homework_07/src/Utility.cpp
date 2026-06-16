@@ -11,17 +11,18 @@
 #include <array>
 #include <fstream>
 #include "sstream"
+#include <vector>
 
 
-std::array<float, 5> calculateTargetDistances(const float& t,Target** targets, SimStep* simStep, const MissionConfig& droneConfig, double targetToDroneAngleRadians[5]) {
-	std::array<float, 5> distances;
+std::vector<float> calculateTargetDistances(const float& t, std::vector<Target>& targets, SimStep* simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians) {
+	std::vector<float> distances(targets.size(), 0);
 	int idx = (int)floor(t / droneConfig.arrayTimeStep) % 60;
 	int next = (idx + 1) % 60;
     
 	float frac = (t - idx * droneConfig.arrayTimeStep) / droneConfig.arrayTimeStep;
-	for (int i=0; i < 5; ++i) {
-		float x = targets[i]->positions[idx].x + (targets[i]->positions[next].x - targets[i]->positions[idx].x) * frac;
-		float y = targets[i]->positions[idx].y + (targets[i]->positions[next].y - targets[i]->positions[idx].y) * frac;
+	for (std::size_t i=0; i < targets.size(); ++i) {
+		float x = targets[i].positions[idx].x + (targets[i].positions[next].x - targets[i].positions[idx].x) * frac;
+		float y = targets[i].positions[idx].y + (targets[i].positions[next].y - targets[i].positions[idx].y) * frac;
 		distances[i] = std::sqrt(std::pow(simStep->pos.x - x, 2) + std::pow(simStep->pos.y - y, 2));
 		targetToDroneAngleRadians[i] = std::atan2(y - simStep->pos.y, x - simStep->pos.x);
 		simStep->direction = std::fmod(simStep->direction + 2 * M_PI, 2 * M_PI);
@@ -30,9 +31,9 @@ std::array<float, 5> calculateTargetDistances(const float& t,Target** targets, S
 	return distances;
 }
 
-std::array<float, 5> getFlightTimeToTarget(std::array<float, 5>targetDistances, const MissionConfig& cfg) {
-	std::array<float, 5> times;
-	for (int i=0; i < 5; ++i) {
+std::vector<float> getFlightTimeToTarget(std::vector<float>& targetDistances, const MissionConfig& cfg) {
+	std::vector<float> times;
+	for (std::size_t i=0; i < targetDistances.size(); ++i) {
 		times[i]= targetDistances[i] / cfg.attackSpeed;
 		std::cout << "Flight time to target [" << i << "] = " << times[i] << std::endl;
 	}
@@ -40,9 +41,9 @@ std::array<float, 5> getFlightTimeToTarget(std::array<float, 5>targetDistances, 
 }
 
 
-int getIndexOfMin(std::array<float, 5>arr) {
+int getIndexOfMin(std::vector<float>& arr) {
 	int minIndex = 0;
-	for (int i = 1; i < 5; i++) {
+	for (std::size_t i = 1; i < (arr.size()); i++) {
 		if (arr[i] < arr[minIndex]) {
 			minIndex = i;
 		}
@@ -50,7 +51,7 @@ int getIndexOfMin(std::array<float, 5>arr) {
 	return minIndex;
 }
 
-double getTurnTime(int targetIndex, SimStep* simStep, double targetAngle, double targetAngleDiff[5], const MissionConfig& droneConfig){
+double getTurnTime(int targetIndex, SimStep* simStep, double targetAngle, std::vector<double>& targetAngleDiff, const MissionConfig& droneConfig){
 	double angleDiff = std::fmod(targetAngle - simStep->direction + 2 * M_PI, 2 * M_PI);
 	if (angleDiff > M_PI) {
 		angleDiff -= 2 * M_PI;
@@ -109,7 +110,7 @@ float getDistanceByTime(const float& time, const AmmoParams& bomb, const Mission
 	return h;
 }
 
-void calculateBalistics(const AmmoParams& bomb, Target** targets, SimStep* simStep, const MissionConfig& droneConfig) {
+void calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, SimStep* simStep, const MissionConfig& droneConfig) {
 	float time = getTimeByCardano(bomb, droneConfig);
 	std::cout << "Time of Flight: " << time << std::endl;
 
@@ -119,9 +120,9 @@ void calculateBalistics(const AmmoParams& bomb, Target** targets, SimStep* simSt
 	int idx = (int)floor(time / droneConfig.arrayTimeStep) % 60;
 	int next = (idx + 1) % 60;
 	float frac = (time - idx * droneConfig.arrayTimeStep) / droneConfig.arrayTimeStep;
-	float predictedTargetX = targets[simStep->targetIdx]->positions[idx].x + (targets[simStep->targetIdx]->positions[next].x - targets[simStep->targetIdx]->positions[idx].x) * frac;
+	float predictedTargetX = targets[simStep->targetIdx].positions[idx].x + (targets[simStep->targetIdx].positions[next].x - targets[simStep->targetIdx].positions[idx].x) * frac;
 
-	float predictedTargetY = targets[simStep->targetIdx]->positions[idx].y + (targets[simStep->targetIdx]->positions[next].y - targets[simStep->targetIdx]->positions[idx].y) * frac;
+	float predictedTargetY = targets[simStep->targetIdx].positions[idx].y + (targets[simStep->targetIdx].positions[next].y - targets[simStep->targetIdx].positions[idx].y) * frac;
 	simStep->predictedTarget = {predictedTargetX, predictedTargetY};
 	std::cout << "predicted target position: (" << predictedTargetX << ", " << predictedTargetY << ")";
 	float D = std::sqrt( (predictedTargetX - simStep->pos.x)*(predictedTargetX - simStep->pos.x) + (predictedTargetY - simStep->pos.y)*(predictedTargetY - simStep->pos.y) );
