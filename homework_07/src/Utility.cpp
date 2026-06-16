@@ -33,9 +33,10 @@ std::vector<float> calculateTargetDistances(const float& t, std::vector<Target>&
 
 std::vector<float> getFlightTimeToTarget(std::vector<float>& targetDistances, const MissionConfig& cfg) {
 	std::vector<float> times;
-	for (std::size_t i=0; i < targetDistances.size(); ++i) {
-		times[i]= targetDistances[i] / cfg.attackSpeed;
-		std::cout << "Flight time to target [" << i << "] = " << times[i] << std::endl;
+	for (const auto& td:targetDistances) {
+		float time = td / cfg.attackSpeed;
+		times.push_back(time);
+		std::cout << "Flight time to target " << time << std::endl;
 	}
 	return times;
 }
