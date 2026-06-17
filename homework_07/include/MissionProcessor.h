@@ -10,11 +10,17 @@
 enum DronePhase {STOPPED = 0, ACCELERATING=1, DECELERATING=2, TURNING=3, MOVING=4};
 
 class Mission {
+private:
+    std::unique_ptr<IBallisticSolver> solver;
+    std::unique_ptr<ITargetProvider> targetProvider;    
+    int currentStepIndex = 0;
+    MissionConfig cfg;
+    AmmoParams bomb;
+    int cycleCount = 0;
+    float currentTime = 0.0f;
+    const int MAX_STEPS = 1000;      
 public:
-    Mission(IBallisticSolver* solver, ITargetProvider* targetProvider) : solver(solver), targetProvider(targetProvider) {
-        this->solver = solver;
-        this->targetProvider = targetProvider;
-    };
+    Mission(std::unique_ptr<IBallisticSolver> solver, std::unique_ptr<ITargetProvider> targetProvider) : solver(std::move(solver)), targetProvider(std::move(targetProvider)) {};
     Point computeDrop(int currentStepIndex, const MissionConfig& cfg) {
         std::cout << "Computing drop for target " << solver->getCurrentTargetIndex() << " at step " << currentStepIndex << std::endl;
         return solver->solve(currentStepIndex, targetProvider->getTargets(), cfg, currentTime, bomb );
@@ -22,7 +28,7 @@ public:
 
     int getTargetCount() { return targetProvider->getTargetCount(); } ;
 
-    void changeSolver(IBallisticSolver* s) { solver = s; };
+    void changeSolver(std::unique_ptr<IBallisticSolver> s) { solver = std::move(s); };
 
     
     void init(const MissionConfig& cfg, const AmmoParams& bomb) {
@@ -59,13 +65,4 @@ public:
         std::cout << "Computed drop point: (" << dropPoint.x << ", " << dropPoint.y << ")" << std::endl;
     };
     void reset()  { currentStepIndex = 0; };
-private:
-    IBallisticSolver* solver;
-    ITargetProvider*  targetProvider;    
-    int currentStepIndex = 0;
-    MissionConfig cfg;
-    AmmoParams bomb;
-    int cycleCount = 0;
-    float currentTime = 0.0f;
-    const int MAX_STEPS = 1000;  
 };

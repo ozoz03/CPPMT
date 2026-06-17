@@ -13,9 +13,7 @@ int main() {
     AmmoParams bomb = jsonConfigLoader->getAmmoParams();
 
     std::string filePath = DATA_DIR_PATH.data() + std::string("/targets.json");
-    auto targetProvider = TargetProviderFactory::createTargetProvider(Source::JSON, filePath);
-    auto analyticalSolver = BallisticSolverFactory::createBallisticSolver();
-    auto mission = Mission(analyticalSolver.get(), targetProvider.get());
+    auto mission = Mission(BallisticSolverFactory::createBallisticSolver(), TargetProviderFactory::createTargetProvider(Source::JSON, filePath));
     mission.init(missionConfig, bomb);
 
     do {

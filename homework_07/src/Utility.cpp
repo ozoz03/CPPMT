@@ -5,6 +5,7 @@
 #include "Point.h"
 #include "Target.h"
 #include <cmath>
+#include <ostream>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <iostream>
