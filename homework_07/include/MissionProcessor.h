@@ -18,7 +18,7 @@ private:
     AmmoParams bomb;
     int cycleCount = 0;
     float currentTime = 0.0f;
-    const int MAX_STEPS = 1000;      
+    const int MAX_STEPS = 10000;      
 public:
     Mission(std::unique_ptr<IBallisticSolver> solver, std::unique_ptr<ITargetProvider> targetProvider) : solver(std::move(solver)), targetProvider(std::move(targetProvider)) {};
     
@@ -55,7 +55,7 @@ public:
 			std::cout << "Simulation complete. Steps: " << cycleCount << std::endl;
 			return false; // mission complete
 		}
-        if (currentStepIndex >= MAX_STEPS) {
+        if (currentStepIndex + 1 >= MAX_STEPS) {
             std::cout << "MAX_STEPS reached." << std::endl;
             return false;
         }
