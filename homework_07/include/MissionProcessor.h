@@ -18,7 +18,7 @@ private:
     AmmoParams bomb;
     int cycleCount = 0;
     float currentTime = 0.0f;
-    const int MAX_STEPS = 200;      
+    const int MAX_STEPS = 1000;      
 public:
     Mission(std::unique_ptr<IBallisticSolver> solver, std::unique_ptr<ITargetProvider> targetProvider) : solver(std::move(solver)), targetProvider(std::move(targetProvider)) {};
     
