@@ -3,23 +3,23 @@
 #include "MissionConfig.h"
 #include "Target.h"
 #include "SimStep.h"
-#include <array>
 #include <iostream>
+#include <vector>
 
 class AnalyticalSolver : public IBallisticSolver {
     private:
-        SimStep** simSteps;
+        std::vector<SimStep> simSteps;
         int currentTargetIndex = 0;
 		std::vector<float> targetDistances;
 		std::vector<double> targetsToDroneAngleRadians;
-		std::vector<double> targetAngleDiff;
+		std::vector<double> targetsAngleDiff;
 
     public:
     AnalyticalSolver(){
 		std::cout << "Created a Analytical solver" << std::endl;
 	}
 
-	void setSimSteps(SimStep** steps) override{
+	void setSimSteps(std::vector<SimStep> steps) override{
 		this->simSteps = steps;
 	}
 	

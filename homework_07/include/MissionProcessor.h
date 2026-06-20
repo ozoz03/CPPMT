@@ -18,11 +18,12 @@ private:
     AmmoParams bomb;
     int cycleCount = 0;
     float currentTime = 0.0f;
-    const int MAX_STEPS = 1000;      
+    const int MAX_STEPS = 200;      
 public:
     Mission(std::unique_ptr<IBallisticSolver> solver, std::unique_ptr<ITargetProvider> targetProvider) : solver(std::move(solver)), targetProvider(std::move(targetProvider)) {};
+    
     Point computeDrop(int currentStepIndex, const MissionConfig& cfg) {
-        std::cout << "Computing drop for target " << solver->getCurrentTargetIndex() << " at step " << currentStepIndex << std::endl;
+        std::cout << "Computing drop for " << targetProvider->getTargets().size() << " targets at step " << currentStepIndex << std::endl;
         return solver->solve(currentStepIndex, targetProvider->getTargets(), cfg, currentTime, bomb );
     };
 
@@ -32,13 +33,14 @@ public:
 
     
     void init(const MissionConfig& cfg, const AmmoParams& bomb) {
-        std::cout << "Initializing mission an ammo: " << cfg .ammoName<< std::endl;
+        std::cout << "Initializing mission an ammo: " << cfg.ammoName<< std::endl;
         this->cfg = cfg;
         this->bomb = bomb;
-        SimStep** simSteps = new SimStep*[MAX_STEPS];
-	    simSteps[0] = new SimStep{ {cfg.startPos.x, cfg.startPos.y}, cfg.initialDir, DronePhase::STOPPED, -1, cfg.startPos, {0,0}, {0,0} };
+        std::vector<SimStep> simSteps(MAX_STEPS);
+	    simSteps[0] = { {cfg.startPos.x, cfg.startPos.y}, cfg.initialDir, DronePhase::STOPPED, -1, cfg.startPos, {0,0}, {0,0} };
         solver->setSimSteps(simSteps);
-        std::cout << "Mission initialized with config and ammo parameters." << std::endl;
+        std::cout << "Mission initialized with MAX_STEPS: " << MAX_STEPS << std::endl;
+
     }
 
     bool hasNext() {
@@ -53,16 +55,18 @@ public:
 			std::cout << "Simulation complete. Steps: " << cycleCount << std::endl;
 			return false; // mission complete
 		}
-        std::cout << "Checking next target " << solver->getCurrentTargetIndex() << ", step " << currentStepIndex << std::endl;
-        return currentStepIndex < targetProvider->getTargetCount(); 
+        if (currentStepIndex >= MAX_STEPS) {
+            std::cout << "MAX_STEPS reached." << std::endl;
+            return false;
+        }
+        return true; 
     }
+
     void step()  {
-        std::cout << "Processing target " << solver->getCurrentTargetIndex() << std::endl;
-        // Simulate the step and calculate distance to target
-        std::cout << "Calculating drop for target " << solver->getCurrentTargetIndex() << " at step " << currentStepIndex << std::endl;
         currentStepIndex++;
         Point dropPoint = computeDrop(currentStepIndex, cfg);
         std::cout << "Computed drop point: (" << dropPoint.x << ", " << dropPoint.y << ")" << std::endl;
     };
+
     void reset()  { currentStepIndex = 0; };
 };

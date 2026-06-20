@@ -30,6 +30,7 @@ void JsonTargetProvider::load() {
 		}
             
 	}
+    this->targets = targets;
     std::cout << "Successfully loaded " << targetCount << " targets from " << filename << std::endl;
 };  
     
