@@ -16,7 +16,7 @@ add_executable(homework07 src/main.cpp src/config/ComponentFactory.cpp src/confi
 
 target_link_libraries(homework07 PRIVATE nlohmann_json::nlohmann_json)
 
-target_include_directories(homework07 PUBLIC  ./include ./include/interfaces ./include/config ./include/dto ./include/providers ./src ./src/config ./src/providers ./src/solvers ./include/solvers)
+target_include_directories(homework07 PUBLIC  ./include ./include/interfaces ./include/config ./include/dto ./include/providers ./src ./src/config ./src/providers ./src/solvers ./include/solvers ./include/state)
 
 # Expose the absolute data path to CMake variable context
 set(DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")

@@ -2,7 +2,7 @@
 #include "config.hpp"
 #include "ComponentFactory.h"
 #include "IConfigLoader.h"
-#include "SourceType.h"
+#include "StateStopped.h"
 #include <iostream>
 
 int main() {
@@ -13,7 +13,9 @@ int main() {
     AmmoParams bomb = jsonConfigLoader->getAmmoParams();
 
     std::string filePath = DATA_DIR_PATH.data() + std::string("/targets.json");
-    Mission mission = Mission(BallisticSolverFactory::createBallisticSolver(), TargetProviderFactory::createTargetProvider(Source::JSON, filePath));
+    Mission mission = Mission(BallisticSolverFactory::createBallisticSolver(), 
+        TargetProviderFactory::createTargetProvider(Source::JSON, filePath),
+        std::make_unique<StateStopped>());
     mission.init(missionConfig, bomb);
 
     do {

@@ -1,4 +1,5 @@
 #pragma once
+#include "MissionContext.h"
 #include "IBallisticSolver.h"
 #include "ITargetProvider.h"
 #include "MissionConfig.h"
@@ -6,8 +7,10 @@
 #include "Point.h"
 #include <iostream>
 #include "SimStep.h"
+#include "IDroneState.h"
+#include "StateStopped.h"
 
-enum DronePhase {STOPPED = 0, ACCELERATING=1, DECELERATING=2, TURNING=3, MOVING=4};
+// enum DronePhase {STOPPED = 0, ACCELERATING=1, DECELERATING=2, TURNING=3, MOVING=4};
 
 class Mission {
 private:
@@ -16,15 +19,19 @@ private:
     int currentStepIndex = 0;
     MissionConfig cfg;
     AmmoParams bomb;
+    MissionContext ctx;
+    std::unique_ptr<IDroneState> currentState;
+    std::vector<SimStep> simSteps;
     int cycleCount = 0;
     float currentTime = 0.0f;
     const int MAX_STEPS = 10000;      
 public:
-    Mission(std::unique_ptr<IBallisticSolver> solver, std::unique_ptr<ITargetProvider> targetProvider) : solver(std::move(solver)), targetProvider(std::move(targetProvider)) {};
+    Mission(std::unique_ptr<IBallisticSolver> solver, std::unique_ptr<ITargetProvider> targetProvider, std::unique_ptr<IDroneState> currentState) : 
+        solver(std::move(solver)), targetProvider(std::move(targetProvider)), currentState(std::move(currentState)) {};
     
-    Point computeDrop(int currentStepIndex, const MissionConfig& cfg) {
+    Point computeDrop(int currentStepIndex, MissionContext& ctx) {
         std::cout << "Computing drop for " << targetProvider->getTargets().size() << " targets at step " << currentStepIndex << std::endl;
-        return solver->solve(currentStepIndex, targetProvider->getTargets(), cfg, currentTime, bomb );
+        return solver->solve(currentStepIndex, targetProvider->getTargets(), ctx, currentTime, bomb );
     };
 
     int getTargetCount() { return targetProvider->getTargetCount(); } ;
@@ -34,21 +41,18 @@ public:
     
     void init(const MissionConfig& cfg, const AmmoParams& bomb) {
         std::cout << "Initializing mission an ammo: " << cfg.ammoName<< std::endl;
-        this->cfg = cfg;
-        this->bomb = bomb;
-        std::vector<SimStep> simSteps(MAX_STEPS);
-	    simSteps[0] = { {cfg.startPos.x, cfg.startPos.y}, cfg.initialDir, DronePhase::STOPPED, -1, cfg.startPos, {0,0}, {0,0} };
-        solver->setSimSteps(simSteps);
-        std::cout << "Mission initialized with MAX_STEPS: " << MAX_STEPS << std::endl;
 
+        simSteps = std::vector<SimStep>(MAX_STEPS);
+        SimStep startStep = {cfg.startPos,cfg.initialDir,"Stopped",-1,0,{0,0},{0,0},{0,0}};
+	    simSteps.push_back(startStep);
+       
+        this->ctx = {simSteps[0], cfg, 0,0,0};
+        this->bomb = bomb;
+
+        std::cout << "Mission initialized with MAX_STEPS: " << MAX_STEPS << std::endl;
     }
 
     bool hasNext() {
-        cycleCount++;
-        // add time step and increment cycle count
-		currentTime += cfg.simTimeStep;
-        std::cout << "Cycle " << cycleCount << ": Checking if mission has next step..." << std::endl;
-        
         // check if current target is hit
 		if (solver->getCurrentDistance() <= cfg.hitRadius) {
 			std::cout << "Target " << solver->getCurrentTargetIndex() << " is hit!" << std::endl;
@@ -63,9 +67,28 @@ public:
     }
 
     void step()  {
-        currentStepIndex++;
-        Point dropPoint = computeDrop(currentStepIndex, cfg);
+
+        // change a context
+        if (currentStepIndex > 0) {
+            // a new sim step
+            SimStep newSimStep = simSteps.back();
+
+            auto next = this->currentState->execute(ctx); 
+            if (next) this->currentState = std::move(next);
+
+            newSimStep.droneStateName = this->currentState->name();
+
+            ctx.droneContext = newSimStep;
+		}
+
+        Point dropPoint = computeDrop(currentStepIndex, ctx);
         std::cout << "Computed drop point: (" << dropPoint.x << ", " << dropPoint.y << ")" << std::endl;
+        ctx.droneContext.dropPoint = dropPoint;
+        
+        simSteps.push_back(ctx.droneContext);
+
+        currentStepIndex++;
+        std::cout << "Current Step Index: " << currentStepIndex << std::endl;
     };
 
     void reset()  { currentStepIndex = 0; };

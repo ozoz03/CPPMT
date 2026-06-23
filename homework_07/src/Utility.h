@@ -28,3 +28,5 @@ float getDistanceByTime(const float& time, const AmmoParams& bomb, const Mission
 void calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig);
 
 void writeStringIntoFile(std::stringstream& s1, std::stringstream& s2, std::stringstream& s3, std::stringstream& s4, std::stringstream& s5);
+
+float normalizeAngle(float angle);
