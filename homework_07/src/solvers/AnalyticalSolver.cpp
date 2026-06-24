@@ -2,11 +2,9 @@
 #include "Point.h"
 #include "MissionContext.h"
 #include "Target.h"
-#include "DronePhase.h"
 #include <iostream>
 #include <ostream>
 #include "Utility.h"
-
 
 	
 Point AnalyticalSolver::solve(int currentStepIndex, std::vector<Target>& targets, MissionContext& ctx, float currentTime, const AmmoParams& bomb) {

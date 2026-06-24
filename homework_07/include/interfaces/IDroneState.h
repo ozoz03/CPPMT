@@ -1,8 +1,10 @@
 #pragma once
 #include "MissionContext.h"
+#include <memory>
 
 class IDroneState {
 public:
+    // IDroneState() = default;
     virtual ~IDroneState() = default;
  
     // Виконати логіку стану, повернути наступний стан.

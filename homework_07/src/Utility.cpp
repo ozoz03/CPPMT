@@ -60,7 +60,7 @@ double getTurnTime(int targetIndex, const SimStep& simStep, double targetAngle, 
 	}
 	targetAngleDiff[targetIndex] = angleDiff;
 	double turnTime = std::abs(angleDiff) / droneConfig.angularSpeed;
-	std::cout << "Turning towards target " << targetIndex << ", angle difference: " << angleDiff << " radians, turn time: " << turnTime << " seconds" << std::endl;
+	std::cout << "To turn towards target " << targetIndex << ", angle difference: " << angleDiff << " radians, turn time: " << turnTime << " seconds" << std::endl;
 	return turnTime;
 }
 
