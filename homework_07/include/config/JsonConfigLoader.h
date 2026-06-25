@@ -1,0 +1,27 @@
+#pragma once
+#include "IConfigLoader.h"
+#include "MissionBuilder.h"
+#include <string>
+#include <iostream>
+#include "AmmoParams.h"
+
+
+class JsonConfigLoader : public IConfigLoader {
+public:
+    JsonConfigLoader() : IConfigLoader() {
+        std::cout << "JsonConfigLoader default constructor called" << std::endl;
+    }; 
+    JsonConfigLoader(const std::string filename) : IConfigLoader(filename) {
+        this->filename = filename;
+        load();
+    };
+    ~JsonConfigLoader() override = default;
+    MissionConfig getConfig() override;
+    AmmoParams getAmmoParams() override;
+private:
+    std::string filename;
+    MissionBuilder configBuilder;
+    AmmoParams ammoParams;
+    void loadAmmoParams(const std::string& ammoName);
+    void load() override;
+};

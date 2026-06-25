@@ -1,21 +1,21 @@
-#include "AnalyticalSolver.cpp"
-#include "Mission.cpp"
-#include "JsonTargetProvider.cpp"
-#include "JsonConfigLoader.cpp"
-#include "MissionConfig.h"
-#include "AmmoParams.h" 
+#include "MissionProcessor.h"
 #include "config.hpp"
-
+#include "ComponentFactory.h"
+#include "IConfigLoader.h"
+#include "SourceType.h"
+#include <iostream>
 
 int main() {
-    JsonConfigLoader  jsonConfigLoader;
-    jsonConfigLoader.load(DATA_DIR_PATH.data() + std::string("/config.json"));
-    MissionConfig missionConfig = jsonConfigLoader.getConfig();
-    AmmoParams bomb = jsonConfigLoader.getAmmoParams();
+    std::string fileName = DATA_DIR_PATH.data() + std::string("/config.json");
+    std::cout << "Loading config from: " << fileName << std::endl;
+    auto jsonConfigLoader = ConfigLoaderFactory::createConfigLoader(fileName);
+    MissionConfig missionConfig = jsonConfigLoader->getConfig();
+    AmmoParams bomb = jsonConfigLoader->getAmmoParams();
 
-    JsonTargetProvider provider(DATA_DIR_PATH.data() + std::string("/targets.json"));
-    AnalyticalSolver analytical;
-    Mission mission(&analytical, &provider);
+    std::string filePath = DATA_DIR_PATH.data() + std::string("/targets.json");
+    auto targetProvider = TargetProviderFactory::createTargetProvider(Source::JSON, filePath);
+    auto analyticalSolver = BallisticSolverFactory::createBallisticSolver();
+    auto mission = Mission(analyticalSolver.get(), targetProvider.get());
     mission.init(missionConfig, bomb);
 
     do {

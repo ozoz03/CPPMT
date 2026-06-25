@@ -1,13 +1,19 @@
 #pragma once
-#include "Point.h"
-#include "MissionConfig.h"
+#include <memory>
 #include "Target.h"
-#include "AmmoParams.h"
-#include "SimStep.h"
+#include <vector>
+
+struct MissionConfig;
+struct AmmoParams;
+struct SimStep;
+struct Point;
+
 
 class IBallisticSolver {
     public:
-    virtual Point solve(int currentStepIndex, Target** targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) = 0; 
+    std::unique_ptr<IBallisticSolver> createBallisticSolver();
+
+    virtual Point solve(int currentStepIndex, std::vector<Target>& targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) = 0; 
     virtual int getCurrentTargetIndex() = 0;
     virtual float getCurrentDistance() = 0;
     virtual void setSimSteps(SimStep** steps) = 0;

@@ -1,4 +1,4 @@
-#include "IBallisticSolver.h"
+#include "AnalyticalSolver.h"
 #include "Point.h"
 #include "MissionConfig.h"
 #include "Target.h"
@@ -6,34 +6,11 @@
 #include "DronePhase.h"
 #include <array>
 #include <iostream>
-#include "Utility.cpp"
-
-class AnalyticalSolver : public IBallisticSolver {
-    private:
-        SimStep** simSteps;
-        int currentTargetIndex = 0;
-		std::array<float, 5> targetDistances;
-		double targetsToDroneAngleRadians[5];
-		double targetAngleDiff[5];
+#include "Utility.h"
 
 
-    public:
-    AnalyticalSolver() = default;
-
-	void setSimSteps(SimStep** steps) override{
-		this->simSteps = steps;
-	}
 	
-	int getCurrentTargetIndex() override {
-		return currentTargetIndex;
-	}
-
-	float getCurrentDistance() override {
-		std::cout << "Current distance to target " << currentTargetIndex << " is " << targetDistances[currentTargetIndex] << std::endl;
-		return targetDistances[currentTargetIndex];
-	}
-
-    Point solve(int currentStepIndex, Target** targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) override {
+Point AnalyticalSolver::solve(int currentStepIndex, std::vector<Target>& targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) {
         
         if (currentStepIndex > 0) {
 			    simSteps[currentStepIndex] = new SimStep(*simSteps[currentStepIndex-1]);
@@ -61,13 +38,13 @@ class AnalyticalSolver : public IBallisticSolver {
 		}
 		}
 
-        double targetToDroneAngleRadians[5]= {0,0,0,0,0};
+        std::vector<double> targetToDroneAngleRadians(targets.size(), 0);
 		targetDistances = calculateTargetDistances(currentTime, targets, simSteps[currentStepIndex], cfg, targetsToDroneAngleRadians);
 
-		std::array<float, 5> targetDistanceTimes = getFlightTimeToTarget(targetDistances, cfg);
+		std::vector<float> targetDistanceTimes = getFlightTimeToTarget(targetDistances, cfg);
 
 		// add turn time to flight time
-		for (int i=0; i < 5; ++i) {
+		for (std::size_t i=0; i < targetToDroneAngleRadians.size(); ++i) {
 			targetDistanceTimes[i] += getTurnTime(i, simSteps[currentStepIndex], targetToDroneAngleRadians[i], targetAngleDiff, cfg);
 			std::cout << "Total time to target [" << i << "] = " << targetDistanceTimes[i] << std::endl;
 		}
@@ -113,7 +90,4 @@ class AnalyticalSolver : public IBallisticSolver {
 		std::cout << "  target=" << currentTargetIndex << " state=" << statusToString(simSteps[currentStepIndex]->state) << std::endl;
 
         return simSteps[currentStepIndex]->dropPoint;
-    };
-
-    ~AnalyticalSolver() override {};   
-};  
+};

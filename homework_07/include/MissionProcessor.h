@@ -1,32 +1,20 @@
+#pragma once
 #include "IBallisticSolver.h"
 #include "ITargetProvider.h"
-#include "Target.h"
 #include "MissionConfig.h"
 #include "AmmoParams.h"
 #include "Point.h"
 #include <iostream>
-#include <array>
 #include "SimStep.h"
-#include "Utility.cpp"
 
+enum DronePhase {STOPPED = 0, ACCELERATING=1, DECELERATING=2, TURNING=3, MOVING=4};
 
-class Mission   {
-    IBallisticSolver* solver;   // стратегія
-    ITargetProvider*  targetProvider; // провайдер цілей
-private:
-    int currentStepIndex = 0;
-    MissionConfig cfg;
-    AmmoParams bomb;
-    int cycleCount = 0;
-    float currentTime = 0.0f;
-    const int MAX_STEPS = 1000;
-
-
+class Mission {
 public:
-    Mission(IBallisticSolver* s, ITargetProvider* t) : solver(s), targetProvider(t) {
-        std::cout << "Mission initialized with solver and target provider." << std::endl;
-    }
- 
+    Mission(IBallisticSolver* solver, ITargetProvider* targetProvider) : solver(solver), targetProvider(targetProvider) {
+        this->solver = solver;
+        this->targetProvider = targetProvider;
+    };
     Point computeDrop(int currentStepIndex, const MissionConfig& cfg) {
         std::cout << "Computing drop for target " << solver->getCurrentTargetIndex() << " at step " << currentStepIndex << std::endl;
         return solver->solve(currentStepIndex, targetProvider->getTargets(), cfg, currentTime, bomb );
@@ -38,14 +26,14 @@ public:
 
     
     void init(const MissionConfig& cfg, const AmmoParams& bomb) {
-        std::cout << "Initializing mission with config: " << std::endl;
+        std::cout << "Initializing mission an ammo: " << cfg .ammoName<< std::endl;
         this->cfg = cfg;
         this->bomb = bomb;
         SimStep** simSteps = new SimStep*[MAX_STEPS];
-	    simSteps[0] = new SimStep{ {cfg.startPos.x, cfg.startPos.y}, cfg.initialDir, STOPPED, -1, cfg.startPos, {0,0}, {0,0} };
+	    simSteps[0] = new SimStep{ {cfg.startPos.x, cfg.startPos.y}, cfg.initialDir, DronePhase::STOPPED, -1, cfg.startPos, {0,0}, {0,0} };
         solver->setSimSteps(simSteps);
         std::cout << "Mission initialized with config and ammo parameters." << std::endl;
-    };
+    }
 
     bool hasNext() {
         cycleCount++;
@@ -71,4 +59,13 @@ public:
         std::cout << "Computed drop point: (" << dropPoint.x << ", " << dropPoint.y << ")" << std::endl;
     };
     void reset()  { currentStepIndex = 0; };
+private:
+    IBallisticSolver* solver;
+    ITargetProvider*  targetProvider;    
+    int currentStepIndex = 0;
+    MissionConfig cfg;
+    AmmoParams bomb;
+    int cycleCount = 0;
+    float currentTime = 0.0f;
+    const int MAX_STEPS = 1000;  
 };
