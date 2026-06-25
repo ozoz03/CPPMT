@@ -1,9 +1,10 @@
 #pragma once
-#include "IBallisticSolver.h"
-#include "IConfigLoader.h"
-#include "ITargetProvider.h"
 #include "SourceType.h"
 #include <memory>
+
+class IBallisticSolver;
+class IConfigLoader;
+class ITargetProvider;
 
 class ConfigLoaderFactory {
 public:
