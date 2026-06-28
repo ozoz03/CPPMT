@@ -7,7 +7,7 @@
 #include "Utility.h"
 
 	
-Point AnalyticalSolver::solve(int currentStepIndex, std::vector<Target>& targets, MissionContext& ctx, float currentTime, const AmmoParams& bomb) {
+Point AnalyticalSolver::solve(std::vector<Target>& targets, MissionContext& ctx, float currentTime, const AmmoParams& bomb) {
 		std::cout << "Current time: " << currentTime << std::endl;
 
         this->targetsToDroneAngleRadians.resize(targets.size());
@@ -32,24 +32,7 @@ Point AnalyticalSolver::solve(int currentStepIndex, std::vector<Target>& targets
 			// change the context
 			ctx.droneContext.targetIdx = nearestTargetIndex;
 			ctx.targetDir = this->targetsToDroneAngleRadians[nearestTargetIndex];
-
-
-			// if (simSteps[currentStepIndex].state == MOVING) {
-				// simSteps[currentStepIndex].state = DECELERATING;
-				// std::cout << "Decelerating to switch target" << std::endl;
-			// }
 		}
-
-	
-		// if (simSteps[currentStepIndex].state == TURNING) {
-			// doTurn(targetsAngleDiff[currentTargetIndex], simSteps[currentStepIndex], currentTargetIndex, cfg);
-			// if (std::abs(simSteps[currentStepIndex].direction) < cfg.turnThreshold) {
-				// simSteps[currentStepIndex].droneState = MOVING;
-			// }
-		// } else {
-			// // update drone position
-			// doMove(simSteps[currentStepIndex], cfg);
-		// }
 
 		calculateBalistics(bomb, targets, ctx.droneContext, ctx.cfg);
 		
@@ -57,14 +40,14 @@ Point AnalyticalSolver::solve(int currentStepIndex, std::vector<Target>& targets
         std::stringstream s1, s2, s3, s4, s5;
 
 		s1.str("");
-		s1 << currentStepIndex;
+		s1 << ctx.currentStepIndex;
 		s2 << " (" << ctx.droneContext.dronePos.x << ", " << ctx.droneContext.dronePos.y << ", " << ctx.cfg.altitude << ")";
 		s3  << ctx.droneContext.droneDirection << " ";
 		s4  << ctx.droneContext.droneStateName << " ";
 		s5  << currentTargetIndex << " ";		
 		writeStringIntoFile(s1, s2, s3, s4, s5);
 		
-		std::cout << "Step " << currentStepIndex << " pos=(" << ctx.droneContext.dronePos.x << "," << ctx.droneContext.dronePos.y << ")" << std::endl;
+		std::cout << "Step " << ctx.currentStepIndex << " pos=(" << ctx.droneContext.dronePos.x << "," << ctx.droneContext.dronePos.y << ")" << std::endl;
 		std::cout << "  target=" << currentTargetIndex << " state=" << ctx.droneContext.droneStateName << std::endl;
 
         return ctx.droneContext.dropPoint;

@@ -10,6 +10,7 @@ std::unique_ptr<IDroneState> StateDecelerating::execute(MissionContext& ctx) {
     if (ctx.droneContext.droneSpeed > 0) {
         std::cout << "Still decelerating..." << std::endl;
         ctx.droneContext.droneSpeed--;
+        std::cout << "Drone speed: " << ctx.droneContext.droneSpeed << " Attack speed: " << ctx.cfg.attackSpeed << std::endl;
         return nullptr;
     }
 
