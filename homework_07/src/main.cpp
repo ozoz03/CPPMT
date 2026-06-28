@@ -3,6 +3,7 @@
 #include "ComponentFactory.h"
 #include "IConfigLoader.h"
 #include "StateStopped.h"
+#include "Utility.h"
 #include <iostream>
 
 int main() {
@@ -22,6 +23,7 @@ int main() {
     do {
         mission.step();    
     } while (mission.hasNext());
+    mission.writeDownSteps();
     }
     catch (const std::exception &exc) {
         std::cerr << exc.what();

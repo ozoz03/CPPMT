@@ -30,3 +30,5 @@ void calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, Si
 void writeStringIntoFile(std::stringstream& s1, std::stringstream& s2, std::stringstream& s3, std::stringstream& s4, std::stringstream& s5);
 
 float normalizeAngle(float angle);
+
+void writeDownJson(std::vector<SimStep> simSteps, int count);

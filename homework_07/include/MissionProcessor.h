@@ -9,6 +9,7 @@
 #include "SimStep.h"
 #include "IDroneState.h"
 #include "StateStopped.h"
+#include "Utility.h"
 
 
 class Mission {
@@ -40,7 +41,7 @@ public:
     void init(const MissionConfig& cfg, const AmmoParams& bomb) {
         std::cout << "Initializing mission an ammo: " << cfg.ammoName<< std::endl;
 
-        simSteps = std::vector<SimStep>(MAX_STEPS);
+        this->simSteps = std::vector<SimStep>(MAX_STEPS);
         SimStep startStep = {cfg.startPos,cfg.initialDir,currentState->name(),-1,0,{0,0},{0,0},{0,0}};
 	    // simSteps.push_back(startStep);
         simSteps[0] = startStep;
@@ -91,11 +92,14 @@ public:
         std::cout << "Computed drop point: (" << dropPoint.x << ", " << dropPoint.y << ")" << std::endl;
         ctx.droneContext.dropPoint = dropPoint;
         
-        simSteps.push_back(ctx.droneContext);
+        this->simSteps[this->ctx.currentStepIndex] = ctx.droneContext;
 
         this->ctx.currentStepIndex++;
         std::cout << "Current Step Index: " << this->ctx.currentStepIndex << std::endl;
     };
 
     void reset()  { this->ctx.currentStepIndex = 0; };
+    void writeDownSteps() {
+        writeDownJson(this->simSteps, this->ctx.currentStepIndex);
+    }
 };

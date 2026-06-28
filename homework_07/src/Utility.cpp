@@ -12,6 +12,8 @@
 #include <fstream>
 #include "sstream"
 #include <vector>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 
 std::vector<float> calculateTargetDistances(const float& t, std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians) {
@@ -180,4 +182,23 @@ std::string statusToString(int phase) {
 
 float normalizeAngle(float angle) {
     return std::atan2(std::sin(angle), std::cos(angle));
+}
+
+void writeDownJson(std::vector<SimStep> simSteps, int count) {
+		json out;
+		out["totalSteps"] = count;
+		out["steps"] = json::array();
+		for (int i = 0; i < count; i++) {
+			json step;
+    		step["position"]        = {{"x", simSteps[i].dronePos.x}, {"y", simSteps[i].dronePos.y}};
+    		step["direction"]       = simSteps[i].droneDirection;
+    		// step["state"]           = simSteps[i].droneStateName;
+    		step["targetIndex"]     = simSteps[i].targetIdx;
+    		step["dropPoint"]       = {{"x", simSteps[i].dropPoint.x},{"y", simSteps[i].dropPoint.y}};
+    		step["aimPoint"]        = {{"x", simSteps[i].aimPoint.x},{"y", simSteps[i].aimPoint.y}};
+    		step["predictedTarget"] = {{"x", simSteps[i].predictedTarget.x},{"y", simSteps[i].predictedTarget.y}};
+    		out["steps"].push_back(step);
+		}
+		std::ofstream fout("simulation.json");
+		fout << out.dump(2); 
 }
