@@ -192,7 +192,11 @@ void writeDownJson(std::vector<SimStep> simSteps, int count) {
 			json step;
     		step["position"]        = {{"x", simSteps[i].dronePos.x}, {"y", simSteps[i].dronePos.y}};
     		step["direction"]       = simSteps[i].droneDirection;
-    		// step["state"]           = simSteps[i].droneStateName;
+			if(simSteps[i].droneStateName){
+				step["state"]       = simSteps[i].droneStateName;
+			}else{
+				step["state"] = "Undefined";
+			}
     		step["targetIndex"]     = simSteps[i].targetIdx;
     		step["dropPoint"]       = {{"x", simSteps[i].dropPoint.x},{"y", simSteps[i].dropPoint.y}};
     		step["aimPoint"]        = {{"x", simSteps[i].aimPoint.x},{"y", simSteps[i].aimPoint.y}};
