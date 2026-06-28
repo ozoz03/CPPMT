@@ -26,6 +26,26 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchains/aarch64-linux-gnu.cmake"
       }
+    },
+    {
+      "name": "relwithdebinfo",
+      "displayName": "Release with Debug Info",
+      "description": "Release build з символами для GDB: оптимізації і мінімальний розмір бінарника, але з символами для налагодження.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/relwithdebinfo",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "relwithdebinfo-base",
+      "displayName": "Release with Debug Info",
+      "description": "Optimized build with debug symbols",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     }
   ],
   "buildPresets": [
@@ -40,6 +60,12 @@
       "displayName": "Build ARM64 Debug",
       "description": "Зібрати ARM64 debug preset після cross-configure.",
       "configurePreset": "aarch64-debug"
+    },
+    {
+      "name": "relwithdebinfo",
+      "displayName": "Build Release with Debug Info",
+      "description": "Зібрати release with debug info preset після configure.",
+      "configurePreset": "relwithdebinfo-base"
     }
   ]
 }

@@ -2,6 +2,7 @@
 #include <memory>
 #include "Target.h"
 #include <vector>
+#include "MissionContext.h"
 
 struct MissionConfig;
 struct AmmoParams;
@@ -13,9 +14,8 @@ class IBallisticSolver {
     public:
     std::unique_ptr<IBallisticSolver> createBallisticSolver();
 
-    virtual Point solve(int currentStepIndex, std::vector<Target>& targets, const MissionConfig& cfg, float currentTime, const AmmoParams& bomb) = 0; 
+    virtual Point solve(std::vector<Target>& targets, MissionContext& ctx, float currentTime, const AmmoParams& bomb) = 0; 
     virtual int getCurrentTargetIndex() = 0;
     virtual float getCurrentDistance() = 0;
-    virtual void setSimSteps(SimStep** steps) = 0;
     virtual ~IBallisticSolver(){};
 };

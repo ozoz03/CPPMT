@@ -2,25 +2,32 @@
 #include "config.hpp"
 #include "ComponentFactory.h"
 #include "IConfigLoader.h"
-#include "SourceType.h"
+#include "StateStopped.h"
+#include "Utility.h"
 #include <iostream>
 
 int main() {
-    std::string fileName = DATA_DIR_PATH.data() + std::string("/config.json");
-    std::cout << "Loading config from: " << fileName << std::endl;
-    auto jsonConfigLoader = ConfigLoaderFactory::createConfigLoader(fileName);
-    MissionConfig missionConfig = jsonConfigLoader->getConfig();
-    AmmoParams bomb = jsonConfigLoader->getAmmoParams();
+    try {
+        std::string fileName = DATA_DIR_PATH.data() + std::string("/config.json");
+        std::cout << "Loading config from: " << fileName << std::endl;
+        auto jsonConfigLoader = ConfigLoaderFactory::createConfigLoader(fileName);
+        MissionConfig missionConfig = jsonConfigLoader->getConfig();
+        AmmoParams bomb = jsonConfigLoader->getAmmoParams();
 
-    std::string filePath = DATA_DIR_PATH.data() + std::string("/targets.json");
-    auto targetProvider = TargetProviderFactory::createTargetProvider(Source::JSON, filePath);
-    auto analyticalSolver = BallisticSolverFactory::createBallisticSolver();
-    auto mission = Mission(analyticalSolver.get(), targetProvider.get());
-    mission.init(missionConfig, bomb);
+        std::string filePath = DATA_DIR_PATH.data() + std::string("/targets.json");
+        Mission mission = Mission(BallisticSolverFactory::createBallisticSolver(), 
+            TargetProviderFactory::createTargetProvider(Source::JSON, filePath),
+            std::make_unique<StateStopped>());
+        mission.init(missionConfig, bomb);   
 
     do {
         mission.step();    
     } while (mission.hasNext());
+    mission.writeDownSteps();
+    }
+    catch (const std::exception &exc) {
+        std::cerr << exc.what();
+    }     
     
     return 0;
 }
