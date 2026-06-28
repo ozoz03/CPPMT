@@ -46,7 +46,7 @@ public:
 	    // simSteps.push_back(startStep);
         simSteps[0] = startStep;
        
-        this->ctx = {0, startStep, cfg, 0,0,0};
+        this->ctx = {0, startStep, cfg, 0,0};
         this->bomb = bomb;
 
         std::cout << "Mission initialized with MAX_STEPS: " << MAX_STEPS << std::endl;

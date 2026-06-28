@@ -11,7 +11,7 @@ std::unique_ptr<IDroneState> StateTurning::execute(MissionContext& ctx)
         // doTurn(targetsAngleDiff[currentTargetIndex], simSteps[currentStepIndex], currentTargetIndex, cfg);
 
         float delta = normalizeAngle(
-            ctx.desiredDir - ctx.targetDir);
+            ctx.desiredDir - ctx.droneContext.droneDirection);
  
         if (std::fabs(delta) > ctx.cfg.turnThreshold) {
             ctx.turnRemaining =
@@ -19,15 +19,15 @@ std::unique_ptr<IDroneState> StateTurning::execute(MissionContext& ctx)
             
             std::cout << "Still turring on..." << std::endl;
 
-            if (ctx.targetDir > ctx.desiredDir) {
-                ctx.targetDir += gradus;
+            if (ctx.droneContext.droneDirection > ctx.desiredDir) {
+                ctx.droneContext.droneDirection += ctx.cfg.angularSpeed;
                 std::cout << "Turring on right" << std::endl;
             } else {
-                ctx.targetDir -= gradus;
+                ctx.droneContext.droneDirection -= ctx.cfg.angularSpeed;
                 std::cout << "Turring on left" << std::endl;
             }
             return nullptr;
         }
-        ctx.targetDir = ctx.desiredDir;
+        ctx.droneContext.droneDirection = ctx.desiredDir;
         return std::make_unique<StateAccelerating>();
     }

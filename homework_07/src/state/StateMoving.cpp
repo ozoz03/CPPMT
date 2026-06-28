@@ -15,7 +15,7 @@ std::unique_ptr<IDroneState> StateMoving::execute(MissionContext& ctx) {
 
         //  Decelerating (якщо потрібен розворот)
         float delta = normalizeAngle(
-            ctx.desiredDir - ctx.targetDir);
+            ctx.desiredDir - ctx.droneContext.droneDirection);
  
         if (std::fabs(delta) > ctx.cfg.turnThreshold) {
             std::cout << "State changing to : StateDecelerating" << std::endl;

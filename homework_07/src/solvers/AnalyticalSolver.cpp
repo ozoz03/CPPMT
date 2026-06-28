@@ -18,7 +18,8 @@ Point AnalyticalSolver::solve(std::vector<Target>& targets, MissionContext& ctx,
 
 		// add turn time to flight time
 		for (std::size_t i=0; i < targetsToDroneAngleRadians.size(); ++i) {
-			targetDistanceTimes[i] += getTurnTime(i, ctx.droneContext, targetsToDroneAngleRadians[i], targetsAngleDiff, ctx.cfg);
+			// targetDistanceTimes[i] += getTurnTime(i, ctx.droneContext, targetsToDroneAngleRadians[i], targetsAngleDiff, ctx.cfg);
+			targetDistanceTimes[i] += (ctx.turnRemaining * ctx.cfg.simTimeStep);
 			std::cout << "Total time to target [" << i << "] = " << targetDistanceTimes[i] << std::endl;
 		}
 		// get the nearest target
@@ -31,7 +32,7 @@ Point AnalyticalSolver::solve(std::vector<Target>& targets, MissionContext& ctx,
 			std::cout << "Switching to target " << currentTargetIndex << std::endl;
 			// change the context
 			ctx.droneContext.targetIdx = nearestTargetIndex;
-			ctx.targetDir = this->targetsToDroneAngleRadians[nearestTargetIndex];
+			ctx.desiredDir = this->targetsToDroneAngleRadians[nearestTargetIndex];
 		}
 
 		calculateBalistics(bomb, targets, ctx.droneContext, ctx.cfg);

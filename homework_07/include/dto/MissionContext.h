@@ -8,5 +8,4 @@ struct MissionContext {
     MissionConfig cfg;
     float desiredDir;
     float turnRemaining;
-    float targetDir;  
 };

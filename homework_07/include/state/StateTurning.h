@@ -5,7 +5,6 @@
 #include "StateAccelerating.h"
 #include <iostream>
 
-const float gradus = 0.01745f;
 
 class StateTurning : public IDroneState {
 public:
