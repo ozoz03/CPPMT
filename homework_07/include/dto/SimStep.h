@@ -9,5 +9,6 @@ struct SimStep {
 	int   targetIdx;    	
 	Point dropPoint;    	
 	Point aimPoint;     	
-	Point predictedTarget;  
+	Point predictedTarget;
+	float currentTime;  
 };

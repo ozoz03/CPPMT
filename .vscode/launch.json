@@ -79,7 +79,7 @@
     {"name": "Debug homework07: homework07",
      "type": "cppdbg", 
      "request": "launch", 
-     "program": "${workspaceFolder}/build/debug/homework07/homework07", 
+     "program": "${workspaceFolder}/build/debug/homework_07/homework07", 
      "args": [], 
      "stopAtEntry": false, 
      "cwd": "${workspaceFolder}",

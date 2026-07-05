@@ -16,13 +16,11 @@ class Mission {
 private:
     std::unique_ptr<IBallisticSolver> solver;
     std::unique_ptr<ITargetProvider> targetProvider;    
-    MissionConfig cfg;
     AmmoParams bomb;
     MissionContext ctx;
     std::unique_ptr<IDroneState> currentState;
     std::vector<SimStep> simSteps;
     int cycleCount = 0;
-    float currentTime = 0.0f;
     const int MAX_STEPS = 10000;      
 public:
     Mission(std::unique_ptr<IBallisticSolver> solver, std::unique_ptr<ITargetProvider> targetProvider, std::unique_ptr<IDroneState> currentState) : 
@@ -30,7 +28,7 @@ public:
     
     Point computeDrop(MissionContext& ctx) {
         std::cout << "Computing drop for " << targetProvider->getTargets().size() << " targets at step " << ctx.currentStepIndex << std::endl;
-        return solver->solve(targetProvider->getTargets(), ctx, currentTime, bomb );
+        return solver->solve(targetProvider->getTargets(), ctx, bomb );
     };
 
     int getTargetCount() { return targetProvider->getTargetCount(); } ;
@@ -42,7 +40,7 @@ public:
         std::cout << "Initializing mission an ammo: " << cfg.ammoName<< std::endl;
 
         this->simSteps = std::vector<SimStep>(MAX_STEPS);
-        SimStep startStep = {cfg.startPos,cfg.initialDir,currentState->name(),-1,0,{0,0},{0,0},{0,0}};
+        SimStep startStep = {cfg.startPos,cfg.initialDir,currentState->name(),-1,0,{0,0},{0,0},{0,0}, 0};
 	    // simSteps.push_back(startStep);
         simSteps[0] = startStep;
        
@@ -53,9 +51,8 @@ public:
     }
 
     bool hasNext() {
-        std::cout << "has next" << std::endl;
         // check if current target is hit
-		if (solver->getCurrentDistance() <= cfg.hitRadius) {
+		if (solver->getCurrentDistance() <= this->ctx.cfg.hitRadius) {
 			std::cout << "Target " << solver->getCurrentTargetIndex() << " is hit!" << std::endl;
 			std::cout << "Simulation complete. Steps: " << cycleCount << std::endl;
 			return false; // mission complete
@@ -68,6 +65,15 @@ public:
     }
 
     void step()  {
+
+        this->ctx.droneContext.currentTime += this->ctx.cfg.simTimeStep;
+
+        std::cout << "simTimeStep: " << this->ctx.cfg.simTimeStep << std::endl;
+        // hitRadius
+        std::cout << "hitRadius: " << this->ctx.cfg.hitRadius << std::endl;
+        std::cout << "attackSpeed: " << this->ctx.cfg.attackSpeed << std::endl;
+        std::cout << "STEP current time: " << this->ctx.droneContext.currentTime << std::endl;
+
         std::cout << "STEP currentStepIndex: " << this->ctx.currentStepIndex << std::endl;
         // change a context
         if (this->ctx.currentStepIndex > 0) {
@@ -80,7 +86,8 @@ public:
                 .targetIdx = this->ctx.droneContext.targetIdx,
                 .dropPoint = this->ctx.droneContext.dropPoint,
                 .aimPoint = Point{},    	
-	            .predictedTarget = Point{}
+	            .predictedTarget = Point{},
+                .currentTime = this->ctx.droneContext.currentTime
             };
             this->ctx.droneContext = newSimStep;
 

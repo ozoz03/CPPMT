@@ -26,6 +26,6 @@ class AnalyticalSolver : public IBallisticSolver {
 		return targetDistances[currentTargetIndex];
 	}
 	
-    Point solve(std::vector<Target>& targets, MissionContext& ctx, float currentTime, const AmmoParams& bomb) override;
+    Point solve(std::vector<Target>& targets, MissionContext& ctx, const AmmoParams& bomb) override;
     ~AnalyticalSolver() override {};   
 };  

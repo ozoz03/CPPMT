@@ -7,12 +7,12 @@
 #include "Utility.h"
 
 	
-Point AnalyticalSolver::solve(std::vector<Target>& targets, MissionContext& ctx, float currentTime, const AmmoParams& bomb) {
-		std::cout << "Current time: " << currentTime << std::endl;
+Point AnalyticalSolver::solve(std::vector<Target>& targets, MissionContext& ctx, const AmmoParams& bomb) {
+		std::cout << "Current time: " << ctx.droneContext.currentTime << std::endl;
 
         this->targetsToDroneAngleRadians.resize(targets.size());
 		this->targetsAngleDiff.resize(targets.size());
-		targetDistances = calculateTargetDistances(currentTime, targets, ctx.droneContext, ctx.cfg, this->targetsToDroneAngleRadians);
+		targetDistances = calculateTargetDistances(ctx.droneContext.currentTime, targets, ctx.droneContext, ctx.cfg, this->targetsToDroneAngleRadians);
 
 		std::vector<float> targetDistanceTimes = getFlightTimeToTarget(targetDistances, ctx.cfg);
 

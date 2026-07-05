@@ -206,3 +206,6 @@ void writeDownJson(std::vector<SimStep> simSteps, int count) {
 		std::ofstream fout("simulation.json");
 		fout << out.dump(2); 
 }
+
+
+// position, direction, state, targetIndex, dropPoint, aimPoint, predictedTarget.
