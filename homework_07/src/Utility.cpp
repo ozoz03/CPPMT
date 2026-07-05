@@ -91,7 +91,7 @@ float getTimeByCardano(const AmmoParams& bomb, const MissionConfig& droneConfig)
 	float arg =3*q / (2*p) * std::sqrt(-3/p);
 	if ((arg<-1) || (arg>1)) {
 		std::cerr << "Error: Wrong model type." << std::endl;
-		exit(1);
+		throw std::runtime_error("Error: Wrong model type.");
 	}
 
 	float phi=std::acos(arg);

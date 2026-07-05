@@ -1,6 +1,7 @@
 #pragma once
 #include "Point.h"
+#include <vector>
 
 struct Target {
-    Point positions[60];    
+    std::vector<Point> positions;    
 };

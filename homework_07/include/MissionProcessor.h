@@ -20,7 +20,6 @@ private:
     MissionContext ctx;
     std::unique_ptr<IDroneState> currentState;
     std::vector<SimStep> simSteps;
-    int cycleCount = 0;
     const int MAX_STEPS = 10000;      
 public:
     Mission(std::unique_ptr<IBallisticSolver> solver, std::unique_ptr<ITargetProvider> targetProvider, std::unique_ptr<IDroneState> currentState) : 
@@ -54,7 +53,7 @@ public:
         // check if current target is hit
 		if (solver->getCurrentDistance() <= this->ctx.cfg.hitRadius) {
 			std::cout << "Target " << solver->getCurrentTargetIndex() << " is hit!" << std::endl;
-			std::cout << "Simulation complete. Steps: " << cycleCount << std::endl;
+			std::cout << "Simulation complete. Steps: " << this->ctx.currentStepIndex << std::endl;
 			return false; // mission complete
 		}
         if (this->ctx.currentStepIndex + 1 >= MAX_STEPS) {
