@@ -37,16 +37,6 @@ Point AnalyticalSolver::solve(std::vector<Target>& targets, MissionContext& ctx,
 
 		calculateBalistics(bomb, targets, ctx.droneContext, ctx.cfg);
 		
-		// output
-        std::stringstream s1, s2, s3, s4, s5;
-
-		s1.str("");
-		s1 << ctx.currentStepIndex;
-		s2 << " (" << ctx.droneContext.dronePos.x << ", " << ctx.droneContext.dronePos.y << ", " << ctx.cfg.altitude << ")";
-		s3  << ctx.droneContext.droneDirection << " ";
-		s4  << ctx.droneContext.droneStateName << " ";
-		s5  << currentTargetIndex << " ";		
-		writeStringIntoFile(s1, s2, s3, s4, s5);
 		
 		std::cout << "Step " << ctx.currentStepIndex << " pos=(" << ctx.droneContext.dronePos.x << "," << ctx.droneContext.dronePos.y << ")" << std::endl;
 		std::cout << "  target=" << currentTargetIndex << " state=" << ctx.droneContext.droneStateName << std::endl;

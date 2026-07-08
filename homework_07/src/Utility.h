@@ -1,13 +1,11 @@
 #pragma once
 #include "SimStep.h"
-#include <string>
 #include "Target.h"
 #include "MissionConfig.h"
 #include "AmmoParams.h"
 #include "sstream"
 #include <vector>
-
-std::string statusToString(int phase);
+#include "MissionContext.h"
 
 std::vector<float> calculateTargetDistances(const float& t,std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians); 
 
@@ -32,3 +30,4 @@ void writeStringIntoFile(std::stringstream& s1, std::stringstream& s2, std::stri
 float normalizeAngle(float angle);
 
 void writeDownJson(std::vector<SimStep> simSteps, int count);
+void writeOutputFile(MissionContext& ctx);

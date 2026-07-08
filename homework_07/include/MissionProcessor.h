@@ -108,4 +108,5 @@ public:
     void writeDownSteps() {
         writeDownJson(this->simSteps, this->ctx.currentStepIndex);
     }
+    MissionContext& getMissionContext() { return this->ctx; };
 };

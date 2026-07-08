@@ -13,6 +13,8 @@
 #include "sstream"
 #include <vector>
 #include <nlohmann/json.hpp>
+#include "Utility.h"
+#include "MissionContext.h"
 using json = nlohmann::json;
 
 
@@ -163,23 +165,6 @@ void writeStringIntoFile(std::stringstream& s1, std::stringstream& s2, std::stri
 	}
 }
 
-std::string statusToString(int phase) {
-	switch (phase) {
-	case STOPPED:
-		return "STOPPED";
-	case ACCELERATING:
-		return "ACCELERATING";
-	case DECELERATING:
-		return "DECELERATING";
-	case TURNING:
-		return "TURNING";
-	case MOVING:
-		return "MOVING";
-	default:
-		return "UNKNOWN";
-	}
-}
-
 float normalizeAngle(float angle) {
     return std::atan2(std::sin(angle), std::cos(angle));
 }
@@ -207,5 +192,21 @@ void writeDownJson(std::vector<SimStep> simSteps, int count) {
 		fout << out.dump(2); 
 }
 
+void writeOutputFile(MissionContext& ctx) {
+std::ofstream outFile("output.txt");
+
+	if (outFile.is_open()) {
+
+		outFile << "Circle count: " << ctx.currentStepIndex << std::endl;
+		outFile << "Drone position: " <<  " (" << ctx.droneContext.dronePos.x << ", " << ctx.droneContext.dronePos.y << ", " << ctx.cfg.altitude << ")" << std::endl;
+		outFile << "Drone direction: " << ctx.droneContext.droneDirection << " " << std::endl;
+		outFile << "Drone state: " << ctx.droneContext.droneStateName << std::endl;
+		outFile << "Current target: " <<  ctx.droneContext.targetIdx<< std::endl;
+		outFile.close();
+		std::cout << "File written successfully." << std::endl;
+	} else {
+		std::cerr << "Error: Could not open the file." << std::endl;
+	}
+};
 
 // position, direction, state, targetIndex, dropPoint, aimPoint, predictedTarget.

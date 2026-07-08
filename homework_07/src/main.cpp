@@ -24,6 +24,7 @@ int main() {
         mission.step();    
     } while (mission.hasNext());
     mission.writeDownSteps();
+    writeOutputFile(mission.getMissionContext());
     }
     catch (const std::exception &exc) {
         std::cerr << exc.what();
