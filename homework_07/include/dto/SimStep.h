@@ -3,7 +3,8 @@
 
 struct SimStep {
 	Point dronePos;          	
-	float droneDirection;    	
+	float droneDirection;
+	float targetDistance;    	
 	const char* droneStateName;
 	float droneSpeed;        	
 	int   targetIdx;    	

@@ -1,4 +1,5 @@
 #include "AnalyticalSolver.h"
+#include "BalisticResult.h"
 #include "Point.h"
 #include "MissionContext.h"
 #include "Target.h"
@@ -7,39 +8,7 @@
 #include "Utility.h"
 
 	
-Point AnalyticalSolver::solve(std::vector<Target>& targets, MissionContext& ctx, const AmmoParams& bomb) {
-		std::cout << "Current time: " << ctx.droneContext.currentTime << std::endl;
-
-        this->targetsToDroneAngleRadians.resize(targets.size());
-		this->targetsAngleDiff.resize(targets.size());
-		targetDistances = calculateTargetDistances(ctx.droneContext.currentTime, targets, ctx.droneContext, ctx.cfg, this->targetsToDroneAngleRadians);
-
-		std::vector<float> targetDistanceTimes = getFlightTimeToTarget(targetDistances, ctx.cfg);
-
-		// add turn time to flight time
-		for (std::size_t i=0; i < targetsToDroneAngleRadians.size(); ++i) {
-			// targetDistanceTimes[i] += getTurnTime(i, ctx.droneContext, targetsToDroneAngleRadians[i], targetsAngleDiff, ctx.cfg);
-			targetDistanceTimes[i] += (ctx.turnRemaining * ctx.cfg.simTimeStep);
-			std::cout << "Total time to target [" << i << "] = " << targetDistanceTimes[i] << std::endl;
-		}
-		// get the nearest target
-		int nearestTargetIndex = getIndexOfMin(targetDistanceTimes);
-		std::cout << "The nearest target is " << nearestTargetIndex << std::endl;
-		
-
-		if (this->currentTargetIndex != nearestTargetIndex) {
-			this->currentTargetIndex = nearestTargetIndex;
-			std::cout << "Switching to target " << currentTargetIndex << std::endl;
-			// change the context
-			ctx.droneContext.targetIdx = nearestTargetIndex;
-			ctx.desiredDir = this->targetsToDroneAngleRadians[nearestTargetIndex];
-		}
-
-		calculateBalistics(bomb, targets, ctx.droneContext, ctx.cfg);
-		
-		
-		std::cout << "Step " << ctx.currentStepIndex << " pos=(" << ctx.droneContext.dronePos.x << "," << ctx.droneContext.dronePos.y << ")" << std::endl;
-		std::cout << "  target=" << currentTargetIndex << " state=" << ctx.droneContext.droneStateName << std::endl;
-
-        return ctx.droneContext.dropPoint;
+BalisticResult AnalyticalSolver::solve(std::vector<Target>& targets, MissionContext& ctx, const AmmoParams& bomb) {
+			
+        return calculateBalistics(bomb, targets, ctx.droneContext, ctx.cfg);
 };

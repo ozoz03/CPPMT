@@ -1,9 +1,11 @@
+#include "BalisticResult.h"
 #include "DronePhase.h"
 #include "SimStep.h"
 #include "AmmoParams.h"
 #include "MissionConfig.h"
 #include "Point.h"
 #include "Target.h"
+#include "TargetDistance.h"
 #include <cmath>
 #include <ostream>
 #define _USE_MATH_DEFINES
@@ -18,8 +20,8 @@
 using json = nlohmann::json;
 
 
-std::vector<float> calculateTargetDistances(const float& t, std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians) {
-	std::vector<float> distances(targets.size(), 0);
+std::vector<TargetDistance> calculateTargetDistances(const float& t, const std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians) {
+	std::vector<TargetDistance> distances(targets.size(), {0, 0, 0});
 	int idx = (int)floor(t / droneConfig.arrayTimeStep) % 60;
 	int next = (idx + 1) % 60;
     
@@ -27,19 +29,22 @@ std::vector<float> calculateTargetDistances(const float& t, std::vector<Target>&
 	for (std::size_t i=0; i < targets.size(); ++i) {
 		float x = targets[i].positions[idx].x + (targets[i].positions[next].x - targets[i].positions[idx].x) * frac;
 		float y = targets[i].positions[idx].y + (targets[i].positions[next].y - targets[i].positions[idx].y) * frac;
-		distances[i] = std::sqrt(std::pow(simStep.dronePos.x - x, 2) + std::pow(simStep.dronePos.y - y, 2));
+		float distance = std::sqrt(std::pow(simStep.dronePos.x - x, 2) + std::pow(simStep.dronePos.y - y, 2));
 		targetToDroneAngleRadians[i] = std::atan2(y - simStep.dronePos.y, x - simStep.dronePos.x);
-		simStep.droneDirection = std::fmod(simStep.droneDirection + 2 * M_PI, 2 * M_PI);
-		std::cout << "dinstance for target [" << i << "] = " << distances[i] << std::endl;
+		std::cout << "targetToDroneAngleRadians: " << targetToDroneAngleRadians[i] << std::endl;
+		// simStep.droneDirection = std::fmod(simStep.droneDirection + 2 * M_PI, 2 * M_PI);
+		simStep.targetDistance = distance;
+		distances[i] = {static_cast<int>(i), distance, targetToDroneAngleRadians[i]};
+		std::cout << "dinstance for target [" << i << "] = " << distances[i].distance << std::endl;
 	}
 	return distances;
 }
 
-std::vector<float> getFlightTimeToTarget(std::vector<float>& targetDistances, const MissionConfig& cfg) {
+std::vector<float> getFlightTimeToTarget(std::vector<TargetDistance>& targetDistances, const MissionConfig& cfg) {
 	std::vector<float> times;
 	int i = 0;
 	for (const auto& td:targetDistances) {
-		float time = td / cfg.attackSpeed;
+		float time = td.distance / cfg.attackSpeed;
 		times.push_back(time);
 		std::cout << "Flight time to target [" << i++ << "]: " << time << std::endl;
 	}
@@ -68,15 +73,15 @@ double getTurnTime(int targetIndex, const SimStep& simStep, double targetAngle, 
 	return turnTime;
 }
 
-void doTurn(double targetAngleDiff,SimStep& simStep, int targetIndex, const MissionConfig& droneConfig) {
-	double turnDirection = (targetAngleDiff > 0) ? 1 : -1;
-	double turnAmount = turnDirection * droneConfig.angularSpeed * droneConfig.simTimeStep;
-	if (std::abs(turnAmount) > std::abs(targetAngleDiff)) {
-		turnAmount = targetAngleDiff; 
-	}
-	simStep.droneDirection += turnAmount;
-	std::cout << "Turning towards target " << targetIndex << ", current drone angle: " << simStep.droneDirection << " radians" << std::endl;
-}
+// void doTurn(double targetAngleDiff,SimStep& simStep, int targetIndex, const MissionConfig& droneConfig) {
+// 	double turnDirection = (targetAngleDiff > 0) ? 1 : -1;
+// 	double turnAmount = turnDirection * droneConfig.angularSpeed * droneConfig.simTimeStep;
+// 	if (std::abs(turnAmount) > std::abs(targetAngleDiff)) {
+// 		turnAmount = targetAngleDiff; 
+// 	}
+// 	simStep.droneDirection += turnAmount;
+// 	std::cout << "Turning towards target " << targetIndex << ", current drone angle: " << simStep.droneDirection << " radians" << std::endl;
+// }
 
 void doMove(SimStep& simStep, const MissionConfig& droneConfig) {
 	simStep.dronePos.x = simStep.dronePos.x + droneConfig.attackSpeed * std::cos(simStep.droneDirection) * droneConfig.simTimeStep;
@@ -116,7 +121,7 @@ float getDistanceByTime(const float& time, const AmmoParams& bomb, const Mission
 	return h;
 }
 
-void calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig) {
+BalisticResult calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, const SimStep& simStep, const MissionConfig& droneConfig) {
 	float time = getTimeByCardano(bomb, droneConfig);
 	std::cout << "Time of Flight: " << time << std::endl;
 
@@ -129,24 +134,25 @@ void calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, Si
 	float predictedTargetX = targets[simStep.targetIdx].positions[idx].x + (targets[simStep.targetIdx].positions[next].x - targets[simStep.targetIdx].positions[idx].x) * frac;
 
 	float predictedTargetY = targets[simStep.targetIdx].positions[idx].y + (targets[simStep.targetIdx].positions[next].y - targets[simStep.targetIdx].positions[idx].y) * frac;
-	simStep.predictedTarget = {predictedTargetX, predictedTargetY};
+	Point predictedTarget = {predictedTargetX, predictedTargetY};
 	std::cout << "predicted target position: (" << predictedTargetX << ", " << predictedTargetY << ")";
 	float D = std::sqrt( (predictedTargetX - simStep.dronePos.x)*(predictedTargetX - simStep.dronePos.x) + (predictedTargetY - simStep.dronePos.y)*(predictedTargetY - simStep.dronePos.y) );
 
+	Point aimPoint;
 	if ((h + droneConfig.accelPath) > D) {
 		float xdI = predictedTargetX - (predictedTargetX - simStep.dronePos.x) * (h + droneConfig.accelPath) / D;
 		float ydI = predictedTargetY - (predictedTargetY - simStep.dronePos.y) * (h + droneConfig.accelPath) / D;
-		Point CoordI = {xdI, ydI};
-		simStep.aimPoint = CoordI;
-		std::cout << "intermediate Coord: " << CoordI.x << ", " << CoordI.y << std::endl;
+		aimPoint = {xdI, ydI};
+		std::cout << "intermediate Coord: " << aimPoint.x << ", " << aimPoint.y << std::endl;
 	}
 
 	float ratio = (D - h) / D;
 	float fireX = simStep.dronePos.x + (predictedTargetX - simStep.dronePos.x) * ratio;
 	float fireY = simStep.dronePos.y + (predictedTargetY - simStep.dronePos.y) * ratio;
-	Point CoordF = {fireX, fireY};
-	std::cout << " fire Coord: " << CoordF.x << ", " << CoordF.y << std::endl;
-	simStep.dropPoint = CoordF;
+	Point dropPoint = {fireX, fireY};
+	std::cout << " fire Coord: " << dropPoint.x << ", " << dropPoint.y << std::endl;
+	
+	return {dropPoint, aimPoint, predictedTarget};
 }
 
 void writeStringIntoFile(std::stringstream& s1, std::stringstream& s2, std::stringstream& s3, std::stringstream& s4, std::stringstream& s5) {
@@ -208,5 +214,33 @@ std::ofstream outFile("output.txt");
 		std::cerr << "Error: Could not open the file." << std::endl;
 	}
 };
+
+int getNearestTarget(MissionContext& ctx, const std::vector<Target>& targets) {
+
+	std::vector<TargetDistance> targetDistances;
+	std::vector<double> targetsToDroneAngleRadians;
+	std::vector<double> targetsAngleDiff;
+	targetsToDroneAngleRadians.resize(targets.size());
+	targetsAngleDiff.resize(targets.size());
+	targetDistances = calculateTargetDistances(ctx.droneContext.currentTime, targets, ctx.droneContext, ctx.cfg, targetsToDroneAngleRadians);
+
+	ctx.droneContext.targetDistance = targetDistances[ctx.currentTargetIndex].distance;
+	ctx.desiredDir = targetDistances[ctx.currentTargetIndex].angleToDroneRadians;
+	std::cout << "Desired direction: " << ctx.desiredDir << std::endl;
+
+	std::vector<float> targetDistanceTimes = getFlightTimeToTarget(targetDistances, ctx.cfg);
+
+	// add turn time to flight time
+	for (std::size_t i=0; i < targetsToDroneAngleRadians.size(); ++i) {
+
+		targetDistanceTimes[i] += (ctx.turnRemaining * ctx.cfg.simTimeStep);
+		std::cout << "Total time to target [" << i << "] = " << targetDistanceTimes[i] << std::endl;
+	}
+	// get the nearest target
+	int nearestTargetIndex = getIndexOfMin(targetDistanceTimes);
+	std::cout << "The nearest target is " << nearestTargetIndex << std::endl;
+	return nearestTargetIndex;
+};
+
 
 // position, direction, state, targetIndex, dropPoint, aimPoint, predictedTarget.

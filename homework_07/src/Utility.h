@@ -1,15 +1,17 @@
 #pragma once
+#include "BalisticResult.h"
 #include "SimStep.h"
 #include "Target.h"
 #include "MissionConfig.h"
 #include "AmmoParams.h"
+#include "TargetDistance.h"
 #include "sstream"
 #include <vector>
 #include "MissionContext.h"
 
-std::vector<float> calculateTargetDistances(const float& t,std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians); 
+std::vector<TargetDistance> calculateTargetDistances(const float& t, const std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians); 
 
-std::vector<float> getFlightTimeToTarget(std::vector<float>& targetDistances, const MissionConfig& cfg);
+std::vector<float> getFlightTimeToTarget(std::vector<TargetDistance>& targetDistances, const MissionConfig& cfg);
 
 int getIndexOfMin(std::vector<float>& arr);
 
@@ -23,7 +25,7 @@ float getTimeByCardano(const AmmoParams& bomb, const MissionConfig& droneConfig)
 
 float getDistanceByTime(const float& time, const AmmoParams& bomb, const MissionConfig& droneConfig);
 
-void calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig);
+BalisticResult calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, const SimStep& simStep, const MissionConfig& droneConfig);
 
 void writeStringIntoFile(std::stringstream& s1, std::stringstream& s2, std::stringstream& s3, std::stringstream& s4, std::stringstream& s5);
 
@@ -31,3 +33,4 @@ float normalizeAngle(float angle);
 
 void writeDownJson(std::vector<SimStep> simSteps, int count);
 void writeOutputFile(MissionContext& ctx);
+int getNearestTarget(MissionContext& ctx, const std::vector<Target>& targets);

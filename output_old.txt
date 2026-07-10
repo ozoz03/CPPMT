@@ -1,0 +1,5 @@
+Circle count: 1295
+Drone position:  (457.033, 303.463, 100)
+Drone direction: 3.66103 
+Drone state: Moving
+Current target: 0

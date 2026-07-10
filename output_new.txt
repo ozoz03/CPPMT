@@ -1,0 +1,5 @@
+Circle count: 9999
+Drone position:  (0, 0, 100)
+Drone direction: 0.0880029 
+Drone state: Turning
+Current target: 4
