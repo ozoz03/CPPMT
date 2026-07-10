@@ -1,10 +1,7 @@
 #include "AnalyticalSolver.h"
 #include "BalisticResult.h"
-#include "Point.h"
 #include "MissionContext.h"
 #include "Target.h"
-#include <iostream>
-#include <ostream>
 #include "Utility.h"
 
 	
