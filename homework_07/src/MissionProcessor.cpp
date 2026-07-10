@@ -1,4 +1,5 @@
 #include "MissionProcessor.h"
+#include "TargetDistance.h"
 
 
 bool MissionProcessor::hasNext() {
@@ -22,14 +23,14 @@ Point MissionProcessor::computeDrop(MissionContext& ctx) {
 		std::cout << "  target=" << ctx.currentTargetIndex << " state=" << ctx.droneContext.droneStateName << std::endl;
 
     
-        int nearestTargetIndex = getNearestTarget(ctx, targetProvider->getTargets());
+        TargetDistance nearestTarget = getNearestTarget(ctx, targetProvider->getTargets());
             
-    	if (ctx.currentTargetIndex != nearestTargetIndex) {
-	    	ctx.currentTargetIndex = nearestTargetIndex;
+    	if (ctx.currentTargetIndex != nearestTarget.targetIndex) {
+	    	ctx.currentTargetIndex = nearestTarget.targetIndex;
 		    std::cout << "Switching to target " << ctx.currentTargetIndex << std::endl;
 		    // change the context
-		    ctx.droneContext.targetIdx = nearestTargetIndex;
-		    // ctx.desiredDir = this->targetsToDroneAngleRadians[nearestTargetIndex];
+		    ctx.droneContext.targetIdx = nearestTarget.targetIndex;
+		    ctx.desiredDir = nearestTarget.angleToDroneRadians;
     	}
 
         BalisticResult result = solver->solve(targetProvider->getTargets(), ctx, bomb);

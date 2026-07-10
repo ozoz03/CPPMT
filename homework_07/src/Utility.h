@@ -9,7 +9,7 @@
 #include <vector>
 #include "MissionContext.h"
 
-std::vector<TargetDistance> calculateTargetDistances(const float& t, const std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians); 
+std::vector<TargetDistance> calculateTargetDistances(const float& t, const std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig); 
 
 std::vector<float> getFlightTimeToTarget(std::vector<TargetDistance>& targetDistances, const MissionConfig& cfg);
 
@@ -33,4 +33,4 @@ float normalizeAngle(float angle);
 
 void writeDownJson(std::vector<SimStep> simSteps, int count);
 void writeOutputFile(MissionContext& ctx);
-int getNearestTarget(MissionContext& ctx, const std::vector<Target>& targets);
+TargetDistance getNearestTarget(MissionContext& ctx, const std::vector<Target>& targets);

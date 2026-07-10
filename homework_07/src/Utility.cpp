@@ -20,7 +20,7 @@
 using json = nlohmann::json;
 
 
-std::vector<TargetDistance> calculateTargetDistances(const float& t, const std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig, std::vector<double>& targetToDroneAngleRadians) {
+std::vector<TargetDistance> calculateTargetDistances(const float& t, const std::vector<Target>& targets, SimStep& simStep, const MissionConfig& droneConfig) {
 	std::vector<TargetDistance> distances(targets.size(), {0, 0, 0});
 	int idx = (int)floor(t / droneConfig.arrayTimeStep) % 60;
 	int next = (idx + 1) % 60;
@@ -30,11 +30,12 @@ std::vector<TargetDistance> calculateTargetDistances(const float& t, const std::
 		float x = targets[i].positions[idx].x + (targets[i].positions[next].x - targets[i].positions[idx].x) * frac;
 		float y = targets[i].positions[idx].y + (targets[i].positions[next].y - targets[i].positions[idx].y) * frac;
 		float distance = std::sqrt(std::pow(simStep.dronePos.x - x, 2) + std::pow(simStep.dronePos.y - y, 2));
-		targetToDroneAngleRadians[i] = std::atan2(y - simStep.dronePos.y, x - simStep.dronePos.x);
-		std::cout << "targetToDroneAngleRadians: " << targetToDroneAngleRadians[i] << std::endl;
+		// calculate the angle from the drone to the target in radians
+		double targetToDroneAngleRadians = std::atan2(y - simStep.dronePos.y, x - simStep.dronePos.x);
+		std::cout << "targetToDroneAngleRadians: " << targetToDroneAngleRadians << std::endl;
 		// simStep.droneDirection = std::fmod(simStep.droneDirection + 2 * M_PI, 2 * M_PI);
 		simStep.targetDistance = distance;
-		distances[i] = {static_cast<int>(i), distance, targetToDroneAngleRadians[i]};
+		distances[i] = {static_cast<int>(i), distance, targetToDroneAngleRadians};
 		std::cout << "dinstance for target [" << i << "] = " << distances[i].distance << std::endl;
 	}
 	return distances;
@@ -215,14 +216,11 @@ std::ofstream outFile("output.txt");
 	}
 };
 
-int getNearestTarget(MissionContext& ctx, const std::vector<Target>& targets) {
+TargetDistance getNearestTarget(MissionContext& ctx, const std::vector<Target>& targets) {
 
 	std::vector<TargetDistance> targetDistances;
-	std::vector<double> targetsToDroneAngleRadians;
-	std::vector<double> targetsAngleDiff;
-	targetsToDroneAngleRadians.resize(targets.size());
-	targetsAngleDiff.resize(targets.size());
-	targetDistances = calculateTargetDistances(ctx.droneContext.currentTime, targets, ctx.droneContext, ctx.cfg, targetsToDroneAngleRadians);
+	std::vector<double> targetsAngleDiff(targets.size());
+	targetDistances = calculateTargetDistances(ctx.droneContext.currentTime, targets, ctx.droneContext, ctx.cfg);
 
 	ctx.droneContext.targetDistance = targetDistances[ctx.currentTargetIndex].distance;
 	ctx.desiredDir = targetDistances[ctx.currentTargetIndex].angleToDroneRadians;
@@ -231,7 +229,7 @@ int getNearestTarget(MissionContext& ctx, const std::vector<Target>& targets) {
 	std::vector<float> targetDistanceTimes = getFlightTimeToTarget(targetDistances, ctx.cfg);
 
 	// add turn time to flight time
-	for (std::size_t i=0; i < targetsToDroneAngleRadians.size(); ++i) {
+	for (std::size_t i=0; i < targets.size(); ++i) {
 
 		targetDistanceTimes[i] += (ctx.turnRemaining * ctx.cfg.simTimeStep);
 		std::cout << "Total time to target [" << i << "] = " << targetDistanceTimes[i] << std::endl;
@@ -239,7 +237,7 @@ int getNearestTarget(MissionContext& ctx, const std::vector<Target>& targets) {
 	// get the nearest target
 	int nearestTargetIndex = getIndexOfMin(targetDistanceTimes);
 	std::cout << "The nearest target is " << nearestTargetIndex << std::endl;
-	return nearestTargetIndex;
+	return targetDistances[nearestTargetIndex];
 };
 
 
