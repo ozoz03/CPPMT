@@ -5,7 +5,7 @@
 bool MissionProcessor::hasNext() {
         // check if current target is hit
 		if (this->ctx.droneContext.targetDistance <= this->ctx.cfg.hitRadius) {
-			std::cout << "Target " << ctx.currentTargetIndex << " is hit!" << std::endl;
+			std::cout << "Target " << this->ctx.droneContext.targetIdx << " is hit!" << std::endl;
 			std::cout << "Simulation complete. Steps: " << this->ctx.currentStepIndex << std::endl;
 			return false; // mission complete
 		}
@@ -20,14 +20,14 @@ Point MissionProcessor::computeDrop(MissionContext& ctx) {
         std::cout << "Computing drop for " << targetProvider->getTargets().size() << " targets at step " << ctx.currentStepIndex << std::endl;
         std::cout << "Current time: " << ctx.droneContext.currentTime << std::endl;
         std::cout << "Step " << ctx.currentStepIndex << " pos=(" << ctx.droneContext.dronePos.x << "," << ctx.droneContext.dronePos.y << ")" << std::endl;
-		std::cout << "  target=" << ctx.currentTargetIndex << " state=" << ctx.droneContext.droneStateName << std::endl;
+		std::cout << "  target=" << ctx.droneContext.targetIdx << " state=" << ctx.droneContext.droneStateName << std::endl;
 
     
         TargetDistance nearestTarget = getNearestTarget(ctx, targetProvider->getTargets());
             
-    	if (ctx.currentTargetIndex != nearestTarget.targetIndex) {
-	    	ctx.currentTargetIndex = nearestTarget.targetIndex;
-		    std::cout << "Switching to target " << ctx.currentTargetIndex << std::endl;
+    	if (ctx.droneContext.targetIdx != nearestTarget.targetIndex) {
+	    	ctx.droneContext.targetIdx = nearestTarget.targetIndex;
+		    std::cout << "Switching to target " << ctx.droneContext.targetIdx << std::endl;
 		    // change the context
 		    ctx.droneContext.targetIdx = nearestTarget.targetIndex;
 		    ctx.desiredDir = nearestTarget.angleToDroneRadians;
@@ -92,7 +92,7 @@ void MissionProcessor::init(const MissionConfig& cfg, const AmmoParams& bomb) {
         SimStep startStep = {cfg.startPos,cfg.initialDir, 0, currentState->name(),-1,0,{0,0},{0,0},{0,0}, 0};
         simSteps[0] = startStep;
        
-        this->ctx = {0, 0,startStep, cfg, 0,0};
+        this->ctx = {0, startStep, cfg, 0,0};
         this->bomb = bomb;
 
         std::cout << "Mission initialized with MAX_STEPS: " << MAX_STEPS << std::endl;

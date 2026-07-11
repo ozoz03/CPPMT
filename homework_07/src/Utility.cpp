@@ -74,15 +74,6 @@ double getTurnTime(int targetIndex, const SimStep& simStep, double targetAngle, 
 	return turnTime;
 }
 
-// void doTurn(double targetAngleDiff,SimStep& simStep, int targetIndex, const MissionConfig& droneConfig) {
-// 	double turnDirection = (targetAngleDiff > 0) ? 1 : -1;
-// 	double turnAmount = turnDirection * droneConfig.angularSpeed * droneConfig.simTimeStep;
-// 	if (std::abs(turnAmount) > std::abs(targetAngleDiff)) {
-// 		turnAmount = targetAngleDiff; 
-// 	}
-// 	simStep.droneDirection += turnAmount;
-// 	std::cout << "Turning towards target " << targetIndex << ", current drone angle: " << simStep.droneDirection << " radians" << std::endl;
-// }
 
 void doMove(SimStep& simStep, const MissionConfig& droneConfig) {
 	simStep.dronePos.x = simStep.dronePos.x + droneConfig.attackSpeed * std::cos(simStep.droneDirection) * droneConfig.simTimeStep;
@@ -222,8 +213,8 @@ TargetDistance getNearestTarget(MissionContext& ctx, const std::vector<Target>& 
 	std::vector<double> targetsAngleDiff(targets.size());
 	targetDistances = calculateTargetDistances(ctx.droneContext.currentTime, targets, ctx.droneContext, ctx.cfg);
 
-	ctx.droneContext.targetDistance = targetDistances[ctx.currentTargetIndex].distance;
-	ctx.desiredDir = targetDistances[ctx.currentTargetIndex].angleToDroneRadians;
+	ctx.droneContext.targetDistance = targetDistances[ctx.droneContext.targetIdx].distance;
+	ctx.desiredDir = targetDistances[ctx.droneContext.targetIdx].angleToDroneRadians;
 	std::cout << "Desired direction: " << ctx.desiredDir << std::endl;
 
 	std::vector<float> targetDistanceTimes = getFlightTimeToTarget(targetDistances, ctx.cfg);

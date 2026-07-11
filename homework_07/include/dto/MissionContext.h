@@ -4,7 +4,6 @@
 
 struct MissionContext {
     int currentStepIndex;
-    int currentTargetIndex;
     SimStep droneContext;
     MissionConfig cfg;
     float desiredDir;
