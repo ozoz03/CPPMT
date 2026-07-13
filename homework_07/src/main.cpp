@@ -1,4 +1,5 @@
 #include "MissionProcessor.h"
+#include "SolverType.h"
 #include "config.hpp"
 #include "ComponentFactory.h"
 #include "IConfigLoader.h"
@@ -15,7 +16,7 @@ int main() {
         AmmoParams bomb = jsonConfigLoader->getAmmoParams();
 
         std::string filePath = DATA_DIR_PATH.data() + std::string("/targets.json");
-        MissionProcessor mission = MissionProcessor(BallisticSolverFactory::createBallisticSolver(), 
+        MissionProcessor mission = MissionProcessor(BallisticSolverFactory::createBallisticSolver(SolverType::TABLE), 
             TargetProviderFactory::createTargetProvider(Source::JSON, filePath),
             std::make_unique<StateStopped>());
         mission.init(missionConfig, bomb);   

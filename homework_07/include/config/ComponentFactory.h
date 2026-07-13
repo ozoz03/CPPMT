@@ -1,5 +1,6 @@
 #pragma once
 #include "SourceType.h"
+#include "SolverType.h"
 #include <memory>
 
 class IBallisticSolver;
@@ -18,7 +19,7 @@ public:
 
 class BallisticSolverFactory {
 public:
-    static std::unique_ptr<IBallisticSolver> createBallisticSolver();    
+    static std::unique_ptr<IBallisticSolver> createBallisticSolver(const SolverType type);    
 };
 
 // class MissionFactory {

@@ -25,7 +25,7 @@ float getTimeByCardano(const AmmoParams& bomb, const MissionConfig& droneConfig)
 
 float getDistanceByTime(const float& time, const AmmoParams& bomb, const MissionConfig& droneConfig);
 
-BalisticResult calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, const SimStep& simStep, const MissionConfig& droneConfig);
+BalisticResult getBalisticResult(const float time, const float distance, std::vector<Target>& targets, const SimStep& simStep, const MissionConfig& droneConfig);
 
 void writeStringIntoFile(std::stringstream& s1, std::stringstream& s2, std::stringstream& s3, std::stringstream& s4, std::stringstream& s5);
 

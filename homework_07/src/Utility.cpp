@@ -113,13 +113,10 @@ float getDistanceByTime(const float& time, const AmmoParams& bomb, const Mission
 	return h;
 }
 
-BalisticResult calculateBalistics(const AmmoParams& bomb, std::vector<Target>& targets, const SimStep& simStep, const MissionConfig& droneConfig) {
-	float time = getTimeByCardano(bomb, droneConfig);
-	std::cout << "Time of Flight: " << time << std::endl;
 
-	float h = getDistanceByTime(time, bomb, droneConfig);
-	std::cout << "h distance: " << h << std::endl;
-
+BalisticResult getBalisticResult(const float time, const float distance, std::vector<Target>& targets, 
+	const SimStep& simStep, const MissionConfig& droneConfig)
+	{ 
 	int idx = (int)floor(time / droneConfig.arrayTimeStep) % 60;
 	int next = (idx + 1) % 60;
 	float frac = (time - idx * droneConfig.arrayTimeStep) / droneConfig.arrayTimeStep;
@@ -131,14 +128,14 @@ BalisticResult calculateBalistics(const AmmoParams& bomb, std::vector<Target>& t
 	float D = std::sqrt( (predictedTargetX - simStep.dronePos.x)*(predictedTargetX - simStep.dronePos.x) + (predictedTargetY - simStep.dronePos.y)*(predictedTargetY - simStep.dronePos.y) );
 
 	Point aimPoint;
-	if ((h + droneConfig.accelPath) > D) {
-		float xdI = predictedTargetX - (predictedTargetX - simStep.dronePos.x) * (h + droneConfig.accelPath) / D;
-		float ydI = predictedTargetY - (predictedTargetY - simStep.dronePos.y) * (h + droneConfig.accelPath) / D;
+	if ((distance + droneConfig.accelPath) > D) {
+		float xdI = predictedTargetX - (predictedTargetX - simStep.dronePos.x) * (distance + droneConfig.accelPath) / D;
+		float ydI = predictedTargetY - (predictedTargetY - simStep.dronePos.y) * (distance + droneConfig.accelPath) / D;
 		aimPoint = {xdI, ydI};
 		std::cout << "intermediate Coord: " << aimPoint.x << ", " << aimPoint.y << std::endl;
 	}
 
-	float ratio = (D - h) / D;
+	float ratio = (D - distance) / D;
 	float fireX = simStep.dronePos.x + (predictedTargetX - simStep.dronePos.x) * ratio;
 	float fireY = simStep.dronePos.y + (predictedTargetY - simStep.dronePos.y) * ratio;
 	Point dropPoint = {fireX, fireY};

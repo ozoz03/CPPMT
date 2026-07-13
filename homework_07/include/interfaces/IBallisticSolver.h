@@ -12,6 +12,9 @@ struct Point;
 
 
 class IBallisticSolver {
+    protected:
+        float time;
+        float distance;
     public:
     std::unique_ptr<IBallisticSolver> createBallisticSolver();
 

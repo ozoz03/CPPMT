@@ -12,7 +12,7 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-add_executable(homework07 src/main.cpp src/config/ComponentFactory.cpp src/config/JsonConfigLoader.cpp src/providers/JsonTargetProvider.cpp src/solvers/AnalyticalSolver.cpp src/Utility.cpp src/state/StateMoving.cpp src/state/StateAccelerating.cpp src/state/StateStopped.cpp src/state/StateTurning.cpp src/state/StateDecelerating.cpp src/MissionProcessor.cpp)
+add_executable(homework07 src/main.cpp src/config/ComponentFactory.cpp src/config/JsonConfigLoader.cpp src/providers/JsonTargetProvider.cpp src/solvers/AnalyticalSolver.cpp src/solvers/TableSolver.cpp src/solvers/BallisticTable.cpp src/Utility.cpp src/state/StateMoving.cpp src/state/StateAccelerating.cpp src/state/StateStopped.cpp src/state/StateTurning.cpp src/state/StateDecelerating.cpp src/MissionProcessor.cpp)
 
 target_link_libraries(homework07 PRIVATE nlohmann_json::nlohmann_json)
 
