@@ -11,13 +11,11 @@
 class TableSolver: public IBallisticSolver {
 public:
     TableSolver() { 
-        // BallisticTable table_;
         table_.load(DATA_DIR_PATH.data() + std::string("/ballistic_table.txt")); // load the table
         std::cout << "TableSolver created with table of size: " << table_.data.size() << std::endl;
     }
 
     // Метод для обчислення результатів на основі вхідних параметрів
-    // BallisticTable::Result solve(float z0, float v0, float m, float d, float l) const;
     BalisticResult solve(std::vector<Target>& targets, MissionContext& ctx, const AmmoParams& bomb) override;
 
 private:
