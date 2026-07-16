@@ -1,0 +1,15 @@
+#pragma once
+#include "Point.h"
+
+struct SimStep {
+	Point dronePos;          	
+	float droneDirection;
+	float targetDistance;    	
+	const char* droneStateName;
+	float droneSpeed;        	
+	int   targetIdx;    	
+	Point dropPoint;    	
+	Point aimPoint;     	
+	Point predictedTarget;
+	float currentTime;  
+};

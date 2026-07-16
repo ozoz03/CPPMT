@@ -1,0 +1,30 @@
+#pragma once
+#include "SourceType.h"
+#include "SolverType.h"
+#include <memory>
+
+class IBallisticSolver;
+class IConfigLoader;
+class ITargetProvider;
+
+class ConfigLoaderFactory {
+public:
+    static std::unique_ptr<IConfigLoader> createConfigLoader(const std::string filename);
+};
+
+class TargetProviderFactory {
+public:
+    static std::unique_ptr<ITargetProvider> createTargetProvider(
+        const Source sourceType, const std::string filename,
+        float arrayTimeStep, float timeScale);
+};
+
+class BallisticSolverFactory {
+public:
+    static std::unique_ptr<IBallisticSolver> createBallisticSolver(const SolverType type);    
+};
+
+// class MissionFactory {
+// public:
+//     static std::unique_ptr<IMission> createMission(); 
+// };
