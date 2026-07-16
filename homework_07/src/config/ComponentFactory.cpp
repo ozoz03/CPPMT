@@ -4,6 +4,7 @@
 #include "JsonTargetProvider.h"
 #include "AnalyticalSolver.h"
 #include "SourceType.h"
+#include "TableSolver.h"
 #include <stdexcept>
 #include <memory>
 
@@ -21,6 +22,12 @@ std::unique_ptr<ITargetProvider> TargetProviderFactory::createTargetProvider(con
         throw std::runtime_error("Unsupported file format: " + filename);
 };
 
-std::unique_ptr<IBallisticSolver> BallisticSolverFactory::createBallisticSolver() {
-    return std::make_unique<AnalyticalSolver>();
+std::unique_ptr<IBallisticSolver> BallisticSolverFactory::createBallisticSolver(const SolverType type) {
+    if (type == SolverType::ANALYTICAL) {
+        return std::make_unique<AnalyticalSolver>();
+    } else if (type == SolverType::TABLE) {
+        return std::make_unique<TableSolver>();
+    }; 
+
+    throw std::runtime_error("Unknown solver type.");
 };

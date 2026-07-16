@@ -1,9 +1,11 @@
 #pragma once
-#include "IBallisticSolver.h"
-#include "IConfigLoader.h"
-#include "ITargetProvider.h"
 #include "SourceType.h"
+#include "SolverType.h"
 #include <memory>
+
+class IBallisticSolver;
+class IConfigLoader;
+class ITargetProvider;
 
 class ConfigLoaderFactory {
 public:
@@ -17,7 +19,7 @@ public:
 
 class BallisticSolverFactory {
 public:
-    static std::unique_ptr<IBallisticSolver> createBallisticSolver();    
+    static std::unique_ptr<IBallisticSolver> createBallisticSolver(const SolverType type);    
 };
 
 // class MissionFactory {

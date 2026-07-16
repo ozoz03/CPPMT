@@ -2,11 +2,14 @@
 #include "Point.h"
 
 struct SimStep {
-	Point pos;          	
-	float direction;    	
-	int   state;        	
+	Point dronePos;          	
+	float droneDirection;
+	float targetDistance;    	
+	const char* droneStateName;
+	float droneSpeed;        	
 	int   targetIdx;    	
 	Point dropPoint;    	
 	Point aimPoint;     	
-	Point predictedTarget;  
+	Point predictedTarget;
+	float currentTime;  
 };

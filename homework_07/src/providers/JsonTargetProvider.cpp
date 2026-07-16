@@ -22,7 +22,8 @@ void JsonTargetProvider::load() {
 	    std::vector<Target>targets(targetCount);
 	    for (int i = 0; i < targetCount; i++) {
             
-            // targets[i]->positions = new Point*[60];
+            std::vector<Point> positions(timeSteps);
+            targets[i].positions = positions;
 		    for (int j = 0; j < timeSteps; j++) {
         	    targets[i].positions[j].x = jsonData["targets"][i]["positions"][j]["x"];
         	    targets[i].positions[j].y = jsonData["targets"][i]["positions"][j]["y"];
@@ -30,6 +31,7 @@ void JsonTargetProvider::load() {
 		}
             
 	}
+    this->targets = targets;
     std::cout << "Successfully loaded " << targetCount << " targets from " << filename << std::endl;
 };  
     
