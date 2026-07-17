@@ -1,16 +1,15 @@
 #pragma once
 #include <condition_variable>
 #include <mutex>
-#include <optional>
 #include <queue>
 
-// ДЗ18: власний потокобезпечний шаблонний контейнер для команд фізиці.
+#include "DroneCommand.h"
+
 // Один продюсер (MissionProcessor) кладе команди, один консюмер (DronePhysics)
 // вичерпує їх неблокуюче на своєму кроці інтегрування.
-template <typename T>
 class ThreadSafeQueue {
 public:
-    void push(const T& value) {
+    void push(const DroneCommand& value) {
         {
             std::lock_guard<std::mutex> lock(mtx_);
             queue_.push(value);
@@ -18,15 +17,15 @@ public:
         cv_.notify_one();
     }
 
-    // Неблокуюче зчитування: повертає std::nullopt, якщо черга порожня.
-    std::optional<T> tryPop() {
+    // Неблокуюче зчитування: повертає false, якщо черга порожня.
+    bool tryPop(DroneCommand& out) {
         std::lock_guard<std::mutex> lock(mtx_);
         if (queue_.empty()) {
-            return std::nullopt;
+            return false;
         }
-        T value = queue_.front();
+        out = queue_.front();
         queue_.pop();
-        return value;
+        return true;
     }
 
     bool empty() const {
@@ -36,8 +35,7 @@ public:
 
 private:
     mutable std::mutex mtx_;
-    // Поки не використовується: consumer читає неблокуюче через tryPop() і ніколи
-    // не чекає. Лишено під можливий waitPop().
+
     std::condition_variable cv_;
-    std::queue<T> queue_;
+    std::queue<DroneCommand> queue_;
 };

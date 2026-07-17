@@ -81,16 +81,30 @@ void MissionProcessor::planStep() {
 }
 
 void MissionProcessor::run() {
+    std::cout << "[mission  " << std::this_thread::get_id()
+              << "] thread started, sleeping until start signal" << std::endl;
     ready_.store(true);
     while (!started_.load() && !stop_.load()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+    std::cout << "[mission  " << std::this_thread::get_id() << "] woke on start signal, running"
+              << std::endl;
 
+    const float period = ctx.cfg.simTimeStep / ctx.cfg.timeScale;
+    long ticks = 0;
     while (!stop_.load()) {
         planStep();
-        std::this_thread::sleep_for(
-            std::chrono::duration<float>(ctx.cfg.simTimeStep / ctx.cfg.timeScale));
+        // Sleep for one step, then wake up and plan the next one.
+        std::this_thread::sleep_for(std::chrono::duration<float>(period));
+        // Heartbeat: proves the mission thread keeps sleeping/waking each step.
+        if (++ticks % 20 == 0) {
+            std::cout << "[mission  " << std::this_thread::get_id() << "] tick " << ticks
+                      << ": slept " << period << "s -> woke, step=" << ctx.currentStepIndex
+                      << " target=" << ctx.droneContext.targetIdx << std::endl;
+        }
     }
+    std::cout << "[mission  " << std::this_thread::get_id() << "] got stop, exiting after " << ticks
+              << " ticks" << std::endl;
 
     // Лог веде MissionProcessor.
     writeDownSteps();

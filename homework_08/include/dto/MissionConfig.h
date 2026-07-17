@@ -12,8 +12,8 @@ struct MissionConfig {
 	char  ammoName[32]; 	
 	float arrayTimeStep;
 	float simTimeStep;
-	float physicsTimeStep; // ДЗ18: крок інтегрування фізики (менший за simTimeStep)
-	float timeScale;       // ДЗ18: прискорення часу — сон = dt / timeScale
+	float physicsTimeStep; // крок інтегрування фізики (менший за simTimeStep)
+	float timeScale;       // прискорення часу — сон = dt / timeScale
 	float hitRadius;
 	float angularSpeed; 	
 	float turnThreshold;

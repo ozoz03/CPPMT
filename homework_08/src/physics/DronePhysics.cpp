@@ -1,12 +1,13 @@
 #include "DronePhysics.h"
 #include <chrono>
 #include <cmath>
+#include <iostream>
 #include <thread>
 
 DronePhysics::DronePhysics(const MissionConfig& cfg)
     : cfg_(cfg),
       dt_(cfg.physicsTimeStep),
-      // Прискорення з наявних параметрів: v² = 2·a·accelPath -> a = attackSpeed²/(2·accelPath).
+      // Прискорення з наявних параметрів: v^2 = 2·a·accelPath -> a = attackSpeed^2/(2·accelPath).
       accel_(cfg.accelPath > 0.0f ? (cfg.attackSpeed * cfg.attackSpeed) / (2.0f * cfg.accelPath)
                                   : cfg.attackSpeed),
       currentCmd_{STOPPED, 0.0f},
@@ -19,8 +20,9 @@ DronePhysics::DronePhysics(const MissionConfig& cfg)
 
 void DronePhysics::integrate(float dt) {
     // Забираємо всі команди, що накопичились; лишається остання (актуальний режим).
-    while (auto cmd = commands_.tryPop()) {
-        currentCmd_ = *cmd;
+    DroneCommand cmd;
+    while (commands_.tryPop(cmd)) {
+        currentCmd_ = cmd;
     }
 
     switch (currentCmd_.state) {
@@ -61,15 +63,30 @@ void DronePhysics::integrate(float dt) {
 }
 
 void DronePhysics::run() {
+    const float period = dt_ / cfg_.timeScale;
+    std::cout << "[physics  " << std::this_thread::get_id()
+              << "] thread started, sleeping until start signal" << std::endl;
     ready_.store(true);
     while (!started_.load() && !stop_.load()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+    std::cout << "[physics  " << std::this_thread::get_id() << "] woke on start signal, running"
+              << std::endl;
 
+    long ticks = 0;
     while (!stop_.load()) {
-        std::this_thread::sleep_for(std::chrono::duration<float>(dt_ / cfg_.timeScale));
+        // Sleep for one step, then wake up and integrate motion.
+        std::this_thread::sleep_for(std::chrono::duration<float>(period));
         integrate(dt_);
+        // Heartbeat: proves the physics thread keeps sleeping/waking each step.
+        if (++ticks % 100 == 0) {
+            std::cout << "[physics  " << std::this_thread::get_id() << "] tick " << ticks
+                      << ": slept " << period << "s -> woke, t=" << timeSecSinceStart_ << "s pos=("
+                      << pos_.x << ", " << pos_.y << ") speed=" << speed_ << std::endl;
+        }
     }
+    std::cout << "[physics  " << std::this_thread::get_id() << "] got stop, exiting after " << ticks
+              << " ticks" << std::endl;
 }
 
 DroneTelemetry DronePhysics::getTelemetry() const {

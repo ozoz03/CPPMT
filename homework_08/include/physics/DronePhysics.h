@@ -7,7 +7,7 @@
 #include <atomic>
 #include <mutex>
 
-// ДЗ18, потік 2. Володіє станом дрона (позиція, швидкість, напрямок).
+// потік 2. Володіє станом дрона (позиція, швидкість, напрямок).
 // Приймає команди через ThreadSafeQueue і кожні physicsTimeStep інтегрує рух.
 // MissionProcessor власної копії стану не тримає — лише запитує getTelemetry().
 class DronePhysics {
@@ -32,7 +32,7 @@ private:
     float dt_;         // physicsTimeStep
     float accel_;      // прискорення/гальмування, м/с²
 
-    ThreadSafeQueue<DroneCommand> commands_;
+    ThreadSafeQueue commands_;
     DroneCommand currentCmd_;  // остання застосована команда
 
     // Внутрішній стан (володіє фізика):

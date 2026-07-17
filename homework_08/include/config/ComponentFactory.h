@@ -23,8 +23,3 @@ class BallisticSolverFactory {
 public:
     static std::unique_ptr<IBallisticSolver> createBallisticSolver(const SolverType type);    
 };
-
-// class MissionFactory {
-// public:
-//     static std::unique_ptr<IMission> createMission(); 
-// };

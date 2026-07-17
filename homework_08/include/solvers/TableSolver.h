@@ -15,7 +15,6 @@ public:
         std::cout << "TableSolver created with table of size: " << table_.data.size() << std::endl;
     }
 
-    // Метод для обчислення результатів на основі вхідних параметрів
     BalisticResult solve(std::vector<Target>& targets, MissionContext& ctx, const AmmoParams& bomb) override;
 
 private:

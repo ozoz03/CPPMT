@@ -7,8 +7,6 @@
 #include "Utility.h"
 #include <cmath>
 
-// ДЗ18: стани більше не інтегрують рух — лише вирішують режим і кладуть команду
-// у ctx.command. Інтегрує фізика (DronePhysics) у власному потоці.
 std::unique_ptr<IDroneState> StateStopped::execute(MissionContext& ctx) {
     float delta = normalizeAngle(ctx.desiredDir - ctx.droneContext.droneDirection);
 

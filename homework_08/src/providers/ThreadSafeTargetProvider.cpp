@@ -48,16 +48,21 @@ void ThreadSafeTargetProvider::advanceNode() {
 }
 
 void ThreadSafeTargetProvider::run() {
+    const float period = arrayTimeStep_ / timeScale_;
+    std::cout << "[provider " << std::this_thread::get_id()
+              << "] thread started, sleeping until start signal" << std::endl;
     ready_.store(true);
     // Чекаємо сигнал start(): цілі не рухаються, поки решта системи ініціалізується.
     while (!started_.load() && !stop_.load()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+    std::cout << "[provider " << std::this_thread::get_id() << "] woke on start signal, running"
+              << std::endl;
 
+    long ticks = 0;
     while (!stop_.load()) {
-        // Спимо період кроку (масштабований), потім переходимо до наступного вузла.
-        std::this_thread::sleep_for(
-            std::chrono::duration<float>(arrayTimeStep_ / timeScale_));
+        // Sleep for one step, then wake up and advance to the next trajectory node.
+        std::this_thread::sleep_for(std::chrono::duration<float>(period));
 
         int nextNode = (node_ + 1) % timeSteps_;
         {
@@ -65,7 +70,15 @@ void ThreadSafeTargetProvider::run() {
             node_ = nextNode;
             advanceNode();  // лише копіювання/арифметика, без sleep під замком
         }
+        // Heartbeat: proves the target thread keeps sleeping/waking each step.
+        if (++ticks % 20 == 0) {
+            std::cout << "[provider " << std::this_thread::get_id() << "] tick " << ticks
+                      << ": slept " << period << "s -> woke, node=" << nextNode << "/" << timeSteps_
+                      << std::endl;
+        }
     }
+    std::cout << "[provider " << std::this_thread::get_id() << "] got stop, exiting after " << ticks
+              << " ticks" << std::endl;
 }
 
 Target ThreadSafeTargetProvider::getTarget(int index) const {
