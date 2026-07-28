@@ -53,6 +53,7 @@ void JsonConfigLoader::loadAmmoParams(const std::string& ammoName) {
         };
         nlohmann::json jsonData;
         file >> jsonData;
+        bool found = false;
         for (const auto& item : jsonData) {
             if (item["name"] == ammoName) {
                 std::strncpy(ammoParams.name, item["name"].get<std::string>().c_str(), sizeof(ammoParams.name) - 1);
@@ -60,11 +61,12 @@ void JsonConfigLoader::loadAmmoParams(const std::string& ammoName) {
                 ammoParams.drag = item["drag"];
                 ammoParams.lift = item["lift"];
                 ammoParams.type = item["type"];
+                found = true;
                 break;
             }
-            else {
-                throw std::runtime_error("Ammo type not found: " + ammoName);
-            }
         }
-        file.close();            
+        if (!found) {
+            throw std::runtime_error("Ammo type not found: " + ammoName);
+        }
+        file.close();
 };
