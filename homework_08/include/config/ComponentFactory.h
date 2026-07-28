@@ -14,7 +14,9 @@ public:
 
 class TargetProviderFactory {
 public:
-    static std::unique_ptr<ITargetProvider> createTargetProvider(const Source sourceType,const std::string filename);
+    static std::unique_ptr<ITargetProvider> createTargetProvider(
+        const Source sourceType, const std::string filename,
+        float arrayTimeStep, float timeScale);
 };
 
 class BallisticSolverFactory {
