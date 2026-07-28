@@ -25,12 +25,12 @@ void JsonConfigLoader::load() {
         file >> jsonData;
         configBuilder.startAt(jsonData["drone"]["position"]["x"], jsonData["drone"]["position"]["y"]);
         configBuilder.altitude(jsonData["drone"]["altitude"]);
-        configBuilder.initialDir(jsonData["drone"]["initialDir"]);
+        configBuilder.initialDir(jsonData["initialDirection"]);
 		configBuilder.attackSpeed(jsonData["drone"]["attackSpeed"]);
-		configBuilder.accelPath(jsonData["drone"]["accelPath"]);
-		configBuilder.arrayTimeStep(jsonData["drone"]["arrayTimeStep"]);
-		configBuilder.simTimeStep(jsonData["drone"]["simTimeStep"]);
-		configBuilder.hitRadius(jsonData["drone"]["hitRadius"]);
+		configBuilder.accelPath(jsonData["accelerationPath"]);
+		configBuilder.arrayTimeStep(jsonData["targetArrayTimeStep"]);
+		configBuilder.simTimeStep(jsonData["simulation"]["timeStep"]);
+		configBuilder.hitRadius(jsonData["simulation"]["hitRadius"]);
 		configBuilder.angularSpeed(jsonData["drone"]["angularSpeed"]);
 		configBuilder.turnThreshold(jsonData["drone"]["turnThreshold"]);
         configBuilder.ammo(jsonData["ammo"].get<std::string>().c_str());
