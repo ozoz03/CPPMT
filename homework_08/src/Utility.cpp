@@ -73,14 +73,31 @@ float getDistanceByTime(const float& time, const AmmoParams& bomb, const Mission
 
 BalisticResult getBalisticResult(const float time, const float distance, std::vector<Target>& targets,
 	const SimStep& simStep, const MissionConfig& droneConfig) {
-	// ДЗ18: майбутня позиція цілі — лінійна екстраполяція з поточної швидкості.
 	const Target& tgt = targets[simStep.targetIdx];
-	float predictedTargetX = tgt.pos.x + tgt.velocity.x * time;
-	float predictedTargetY = tgt.pos.y + tgt.velocity.y * time;
-	Point predictedTarget = {predictedTargetX, predictedTargetY};
 
-	float D = std::sqrt((predictedTargetX - simStep.dronePos.x)*(predictedTargetX - simStep.dronePos.x) +
-	                    (predictedTargetY - simStep.dronePos.y)*(predictedTargetY - simStep.dronePos.y));
+	// Горизонт прогнозу = час падіння снаряда (time) + час, за який дрон долетить
+	// до точки скидання. Точка скидання залежить від прогнозованої позиції цілі,
+	// а та — від горизонту, тож шукаємо горизонт ітераційно (фіксована точка).
+	float predictedTargetX = tgt.pos.x;
+	float predictedTargetY = tgt.pos.y;
+	float D = 0.0f;
+	float horizon = time;
+	constexpr int kMaxIterations = 20;
+	constexpr float kEpsilon = 1e-3f;
+	for (int i = 0; i < kMaxIterations; ++i) {
+		predictedTargetX = tgt.pos.x + tgt.velocity.x * horizon;
+		predictedTargetY = tgt.pos.y + tgt.velocity.y * horizon;
+		D = std::sqrt((predictedTargetX - simStep.dronePos.x)*(predictedTargetX - simStep.dronePos.x) +
+		             (predictedTargetY - simStep.dronePos.y)*(predictedTargetY - simStep.dronePos.y));
+		float droneFlightTime = (D > distance) ? (D - distance) / droneConfig.attackSpeed : 0.0f;
+		float newHorizon = time + droneFlightTime;
+		if (std::fabs(newHorizon - horizon) < kEpsilon) {
+			horizon = newHorizon;
+			break;
+		}
+		horizon = newHorizon;
+	}
+	Point predictedTarget = {predictedTargetX, predictedTargetY};
 
 	Point aimPoint{};
 	if ((distance + droneConfig.accelPath) > D) {
