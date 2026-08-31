@@ -5,20 +5,28 @@ services:
     environment:
       VEHICLE: Rover
       SPEEDUP: "1"
-      # За замовчуванням QGC слухає UDP 14550 на цьому ж хостi.
-      # Якщо QGC не пiдключається, спочатку лишити 127.0.0.1 i пересоздати контейнер.
-      # GCS_HOST з /etc/resolv.conf потрiбен тiльки для окремих WSL2 NAT-конфiгурацiй.
-      GCS_HOST: "${GCS_HOST:-127.0.0.1}"
+      # network_mode: host прибрано (не працює на Docker Desktop macOS), тому
+      # 127.0.0.1 всерединi контейнера бiльше не вказує на хост.
+      # host.docker.internal - спецiальне iм'я Docker Desktop для доступу до хоста.
+      GCS_HOST: "${GCS_HOST:-host.docker.internal}"
       GCS_PORT: "14550"
-      # C2 service працює в host network, тому 127.0.0.1 вказує на той самий network namespace.
-      C2_HOST: "127.0.0.1"
+      # c2_service тепер у спiльнiй мережi mavnet (див. edge/docker-compose.yml):
+      # UDP hairpin через host.docker.internal ненадiйний на Docker Desktop macOS,
+      # тому йдемо напряму по iменi контейнера в тiй самiй мережi.
+      C2_HOST: "${C2_HOST:-c2_service}"
       C2_PORT: "14551"
       # Стартова позицiя SITL
       LAT: "48.983498065911704"
       LON: "37.82220625228142"
       ALT: "95"
       DIR: "90"
-    network_mode: host
-    # Docker Desktop на macOS не пiдтримує network_mode: host.
-    # Для macOS потрiбно прибрати network_mode та явно опублiкувати порти.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # для Docker Engine на Linux; на Mac/Windows зайве, але не заважає
+    networks:
+      - default
+      - mavnet     # спiльна з edge/ стеком: тут живе c2_service
     restart: unless-stopped
+
+networks:
+  mavnet:
+    external: true  # створюється один раз: docker network create mavnet
