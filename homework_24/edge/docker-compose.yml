@@ -39,4 +39,7 @@ services:
 
 networks:
   mavnet:
-    external: true  # створюється один раз: docker network create mavnet
+    name: mavnet  # фiксована назва, спiльна з sim/ стеком
+    # без external: true - Compose сам створює мережу при першому запуску
+    # (edge/ чи sim/, незалежно вiд порядку) i повторно використовує її при другому,
+    # тому ручний docker network create mavnet бiльше не потрiбен.
